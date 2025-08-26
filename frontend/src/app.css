@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Border Radius */
+    --radius: 0.75rem;
+    
+    /* Light Mode - AI 페이스메이커 테마 */
+    --background: 0 0% 100%;
+    --foreground: 280 10% 18%;
+    
+    /* Card & Popover */
+    --card: 0 0% 100%;
+    --card-foreground: 280 10% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 280 10% 18%;
+    
+    /* Primary - 부드러운 보라색 (성장, 성찰) */
+    --primary: 270 50% 60%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary - 따뜻한 주황색 (격려, 긍정) */
+    --secondary: 24 70% 60%;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Accent - 민트그린 (완료, 성취) */
+    --accent: 160 45% 50%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* Muted */
+    --muted: 240 4% 95%;
+    --muted-foreground: 240 4% 46%;
+    
+    /* Destructive */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Border & Input */
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 270 50% 60%;
+    
+    /* Chart Colors (감정 분석용) */
+    --chart-1: 270 50% 60%;  /* Primary 보라 */
+    --chart-2: 24 70% 60%;   /* Secondary 주황 */
+    --chart-3: 160 45% 50%;  /* Accent 민트 */
+    --chart-4: 200 60% 50%;  /* 차분한 블루 */
+    --chart-5: 45 80% 60%;   /* 따뜻한 옐로우 */
+  }
+  
+  .dark {
+    /* Dark Mode - 차분한 다크 테마 */
+    --background: 280 10% 8%;
+    --foreground: 0 0% 95%;
+    
+    /* Card & Popover */
+    --card: 280 10% 12%;
+    --card-foreground: 0 0% 95%;
+    --popover: 280 10% 12%;
+    --popover-foreground: 0 0% 95%;
+    
+    /* Primary - 부드러운 보라색 (밝게 조정) */
+    --primary: 270 60% 70%;
+    --primary-foreground: 280 10% 8%;
+    
+    /* Secondary - 따뜻한 주황색 (밝게 조정) */
+    --secondary: 24 80% 70%;
+    --secondary-foreground: 280 10% 8%;
+    
+    /* Accent - 민트그린 (밝게 조정) */
+    --accent: 160 50% 60%;
+    --accent-foreground: 280 10% 8%;
+    
+    /* Muted */
+    --muted: 280 10% 20%;
+    --muted-foreground: 240 5% 64%;
+    
+    /* Destructive */
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Border & Input */
+    --border: 280 10% 20%;
+    --input: 280 10% 20%;
+    --ring: 270 60% 70%;
+    
+    /* Chart Colors (감정 분석용) */
+    --chart-1: 270 60% 70%;  /* Primary 보라 */
+    --chart-2: 24 80% 70%;   /* Secondary 주황 */
+    --chart-3: 160 50% 60%;  /* Accent 민트 */
+    --chart-4: 200 60% 60%;  /* 차분한 블루 */
+    --chart-5: 45 80% 70%;   /* 따뜻한 옐로우 */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* 스크롤바 스타일링 */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/30;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-md;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+}
+
+@layer utilities {
+  /* 애니메이션 유틸리티 */
+  .animate-in {
+    animation-name: animateIn;
+    animation-duration: 200ms;
+    animation-fill-mode: both;
+  }
+  
+  .animate-out {
+    animation-name: animateOut;
+    animation-duration: 150ms;
+    animation-fill-mode: both;
+  }
+  
+  .fade-in {
+    --tw-enter-opacity: 0;
+  }
+  
+  .fade-out {
+    --tw-exit-opacity: 0;
+  }
+  
+  .slide-in-from-top {
+    --tw-enter-translate-y: -100%;
+  }
+  
+  .slide-in-from-bottom {
+    --tw-enter-translate-y: 100%;
+  }
+  
+  .slide-out-to-top {
+    --tw-exit-translate-y: -100%;
+  }
+  
+  .slide-out-to-bottom {
+    --tw-exit-translate-y: 100%;
+  }
+  
+  /* 그라데이션 배경 (아침/저녁 분위기) */
+  .gradient-morning {
+    @apply bg-gradient-to-br from-purple-50 via-orange-50 to-yellow-50 dark:from-purple-950/20 dark:via-orange-950/20 dark:to-yellow-950/20;
+  }
+  
+  .gradient-evening {
+    @apply bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/20 dark:via-purple-950/20 dark:to-pink-950/20;
+  }
+  
+  /* 채팅 버블 스타일 */
+  .chat-bubble-user {
+    @apply bg-primary text-primary-foreground rounded-2xl rounded-br-sm;
+  }
+  
+  .chat-bubble-ai {
+    @apply bg-muted text-muted-foreground rounded-2xl rounded-bl-sm;
+  }
+}
+
+@keyframes animateIn {
+  from {
+    opacity: var(--tw-enter-opacity, 1);
+    transform: translate(
+        var(--tw-enter-translate-x, 0),
+        var(--tw-enter-translate-y, 0)
+      )
+      scale(var(--tw-enter-scale, 1))
+      rotate(var(--tw-enter-rotate, 0));
+  }
+}
+
+@keyframes animateOut {
+  to {
+    opacity: var(--tw-exit-opacity, 1);
+    transform: translate(
+        var(--tw-exit-translate-x, 0),
+        var(--tw-exit-translate-y, 0)
+      )
+      scale(var(--tw-exit-scale, 1))
+      rotate(var(--tw-exit-rotate, 0));
+  }
+}
+
+/* 부드러운 트랜지션 */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* 텍스트 선택 색상 */
+::selection {
+  @apply bg-primary/20 text-primary;
+}
+
+/* 포커스 스타일 */
+:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+}
