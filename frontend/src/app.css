@@ -7,101 +7,44 @@
     /* Border Radius */
     --radius: 0.75rem;
     
-    /* Light Mode - AI 페이스메이커 테마 */
-    --background: 0 0% 100%;
-    --foreground: 280 10% 18%;
-    
-    /* Card & Popover */
-    --card: 0 0% 100%;
-    --card-foreground: 280 10% 18%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 280 10% 18%;
-    
-    /* Primary - 부드러운 보라색 (성장, 성찰) */
-    --primary: 270 50% 60%;
-    --primary-foreground: 0 0% 100%;
-    
-    /* Secondary - 따뜻한 주황색 (격려, 긍정) */
-    --secondary: 24 70% 60%;
-    --secondary-foreground: 0 0% 100%;
-    
-    /* Accent - 민트그린 (완료, 성취) */
-    --accent: 160 45% 50%;
-    --accent-foreground: 0 0% 100%;
+    /* Colors - AI 페이스메이커 테마 */
+    --color-border: hsl(240 5.9% 90%);
+    --color-input: hsl(240 5.9% 90%);
+    --color-ring: hsl(270 50% 60%);
+    --color-background: hsl(0 0% 100%);
+    --color-foreground: hsl(280 10% 18%);
     
     /* Muted */
-    --muted: 240 4% 95%;
-    --muted-foreground: 240 4% 46%;
+    --color-muted: hsl(240 4% 95%);
+    --color-muted-foreground: hsl(240 4% 46%);
     
     /* Destructive */
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    
-    /* Border & Input */
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 270 50% 60%;
-    
-    /* Chart Colors (감정 분석용) */
-    --chart-1: 270 50% 60%;  /* Primary 보라 */
-    --chart-2: 24 70% 60%;   /* Secondary 주황 */
-    --chart-3: 160 45% 50%;  /* Accent 민트 */
-    --chart-4: 200 60% 50%;  /* 차분한 블루 */
-    --chart-5: 45 80% 60%;   /* 따뜻한 옐로우 */
+    --color-destructive: hsl(0 72% 51%);
+    --color-destructive-foreground: hsl(0 0% 100%);
   }
   
   .dark {
-    /* Dark Mode - 차분한 다크 테마 */
-    --background: 280 10% 8%;
-    --foreground: 0 0% 95%;
+    --color-background: hsl(280 10% 8%);
+    --color-foreground: hsl(0 0% 95%);
+    --color-border: hsl(280 10% 20%);
+    --color-input: hsl(280 10% 20%);
+    --color-ring: hsl(270 60% 70%);
     
-    /* Card & Popover */
-    --card: 280 10% 12%;
-    --card-foreground: 0 0% 95%;
-    --popover: 280 10% 12%;
-    --popover-foreground: 0 0% 95%;
+    --color-muted: hsl(280 10% 20%);
+    --color-muted-foreground: hsl(240 5% 64%);
     
-    /* Primary - 부드러운 보라색 (밝게 조정) */
-    --primary: 270 60% 70%;
-    --primary-foreground: 280 10% 8%;
-    
-    /* Secondary - 따뜻한 주황색 (밝게 조정) */
-    --secondary: 24 80% 70%;
-    --secondary-foreground: 280 10% 8%;
-    
-    /* Accent - 민트그린 (밝게 조정) */
-    --accent: 160 50% 60%;
-    --accent-foreground: 280 10% 8%;
-    
-    /* Muted */
-    --muted: 280 10% 20%;
-    --muted-foreground: 240 5% 64%;
-    
-    /* Destructive */
-    --destructive: 0 62% 45%;
-    --destructive-foreground: 0 0% 100%;
-    
-    /* Border & Input */
-    --border: 280 10% 20%;
-    --input: 280 10% 20%;
-    --ring: 270 60% 70%;
-    
-    /* Chart Colors (감정 분석용) */
-    --chart-1: 270 60% 70%;  /* Primary 보라 */
-    --chart-2: 24 80% 70%;   /* Secondary 주황 */
-    --chart-3: 160 50% 60%;  /* Accent 민트 */
-    --chart-4: 200 60% 60%;  /* 차분한 블루 */
-    --chart-5: 45 80% 70%;   /* 따뜻한 옐로우 */
+    --color-destructive: hsl(0 62% 45%);
+    --color-destructive-foreground: hsl(0 0% 100%);
   }
-}
-
-@layer base {
+  
   * {
     @apply border-border;
   }
   
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   
@@ -124,84 +67,207 @@
   }
 }
 
-@layer utilities {
-  /* 애니메이션 유틸리티 */
-  .animate-in {
-    animation-name: animateIn;
-    animation-duration: 200ms;
-    animation-fill-mode: both;
+@layer components {
+  /* 버튼 컴포넌트 */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
   
-  .animate-out {
-    animation-name: animateOut;
-    animation-duration: 150ms;
-    animation-fill-mode: both;
+  .btn-primary {
+    @apply btn bg-primary text-primary-foreground px-4 py-2 hover:opacity-90;
   }
   
-  .fade-in {
-    --tw-enter-opacity: 0;
+  .btn-secondary {
+    @apply btn bg-secondary text-secondary-foreground px-4 py-2 hover:opacity-90;
   }
   
-  .fade-out {
-    --tw-exit-opacity: 0;
+  .btn-outline {
+    @apply btn border border-input bg-background px-4 py-2 hover:bg-accent hover:text-accent-foreground;
   }
   
-  .slide-in-from-top {
-    --tw-enter-translate-y: -100%;
+  .btn-ghost {
+    @apply btn px-4 py-2 hover:bg-accent/10 hover:text-accent;
   }
   
-  .slide-in-from-bottom {
-    --tw-enter-translate-y: 100%;
+  /* 카드 컴포넌트 */
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-[var(--radius)] shadow-md p-6 border border-border;
   }
   
-  .slide-out-to-top {
-    --tw-exit-translate-y: -100%;
+  .card-hover {
+    @apply card transition-shadow hover:shadow-lg cursor-pointer;
   }
   
-  .slide-out-to-bottom {
-    --tw-exit-translate-y: 100%;
+  /* 입력 컴포넌트 */
+  .input {
+    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
   
-  /* 그라데이션 배경 (아침/저녁 분위기) */
-  .gradient-morning {
-    @apply bg-gradient-to-br from-purple-50 via-orange-50 to-yellow-50 dark:from-purple-950/20 dark:via-orange-950/20 dark:to-yellow-950/20;
-  }
-  
-  .gradient-evening {
-    @apply bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/20 dark:via-purple-950/20 dark:to-pink-950/20;
+  .textarea {
+    @apply flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
   
   /* 채팅 버블 스타일 */
   .chat-bubble-user {
-    @apply bg-primary text-primary-foreground rounded-2xl rounded-br-sm;
+    @apply bg-primary text-primary-foreground rounded-2xl rounded-br-sm px-4 py-2 max-w-[70%] ml-auto;
   }
   
   .chat-bubble-ai {
-    @apply bg-muted text-muted-foreground rounded-2xl rounded-bl-sm;
+    @apply bg-muted text-muted-foreground rounded-2xl rounded-bl-sm px-4 py-2 max-w-[70%];
   }
 }
 
+@layer utilities {
+  /* 애니메이션 유틸리티 */
+  .animate-in {
+    animation: animateIn 200ms ease-in-out;
+  }
+  
+  .animate-out {
+    animation: animateOut 150ms ease-in-out;
+  }
+  
+  .fade-in {
+    animation: fadeIn 200ms ease-in-out;
+  }
+  
+  .fade-out {
+    animation: fadeOut 150ms ease-in-out;
+  }
+  
+  .slide-in-from-top {
+    animation: slideInFromTop 200ms ease-out;
+  }
+  
+  .slide-in-from-bottom {
+    animation: slideInFromBottom 200ms ease-out;
+  }
+  
+  .slide-out-to-top {
+    animation: slideOutToTop 150ms ease-in;
+  }
+  
+  .slide-out-to-bottom {
+    animation: slideOutToBottom 150ms ease-in;
+  }
+  
+  /* 그라데이션 배경 (아침/저녁 분위기) */
+  .gradient-morning {
+    background-image: linear-gradient(to bottom right, 
+      hsl(270 50% 95%), 
+      hsl(24 70% 95%), 
+      hsl(45 80% 95%));
+  }
+  
+  .dark .gradient-morning {
+    background-image: linear-gradient(to bottom right, 
+      hsl(270 60% 15%), 
+      hsl(24 80% 15%), 
+      hsl(45 80% 15%));
+  }
+  
+  .gradient-evening {
+    background-image: linear-gradient(to bottom right, 
+      hsl(200 60% 95%), 
+      hsl(270 50% 95%), 
+      hsl(340 60% 95%));
+  }
+  
+  .dark .gradient-evening {
+    background-image: linear-gradient(to bottom right, 
+      hsl(200 60% 15%), 
+      hsl(270 60% 15%), 
+      hsl(340 60% 15%));
+  }
+  
+  /* 텍스트 그라데이션 */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent;
+  }
+}
+
+/* 애니메이션 키프레임 */
 @keyframes animateIn {
   from {
-    opacity: var(--tw-enter-opacity, 1);
-    transform: translate(
-        var(--tw-enter-translate-x, 0),
-        var(--tw-enter-translate-y, 0)
-      )
-      scale(var(--tw-enter-scale, 1))
-      rotate(var(--tw-enter-rotate, 0));
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
 @keyframes animateOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
   to {
-    opacity: var(--tw-exit-opacity, 1);
-    transform: translate(
-        var(--tw-exit-translate-x, 0),
-        var(--tw-exit-translate-y, 0)
-      )
-      scale(var(--tw-exit-scale, 1))
-      rotate(var(--tw-exit-rotate, 0));
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOutToTop {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes slideOutToBottom {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px);
   }
 }
 
@@ -219,5 +285,8 @@
 
 /* 포커스 스타일 */
 :focus-visible {
-  @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  outline: none;
+  box-shadow: 
+    0 0 0 2px var(--color-background),
+    0 0 0 4px var(--color-ring);
 }
