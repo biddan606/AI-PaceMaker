@@ -1,0 +1,35 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    url: jdbc:tc:postgresql:17-alpine:///aipacemaker_test
+    username: test
+    password: test
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+  test:
+    database:
+      replace: none
+
+decorator:
+  datasource:
+    enabled: true
+    datasource-proxy:
+      logging: slf4j
+      query:
+        enable-logging: true
+        log-level: info
+      slow-query:
+        enable-logging: true
+        threshold: 500
+        log-level: warn
+
+logging:
+  level:
+    net.ttddyy.dsproxy.listener: INFO

@@ -1,0 +1,53 @@
+spring:
+  profiles:
+    active: local
+
+  application:
+    name: aipacemaker-backend
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: AIPaceMakerHikariCP
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      validation-timeout: 5000
+
+  jpa:
+    defer-datasource-initialization: false
+    open-in-view: true
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 128
+        order_inserts: true
+        order_updates: true
+        default_batch_fetch_size: 128
+        query:
+          in_clause_parameter_padding: true
+          fail_on_pagination_over_collection_fetch: true
+        naming:
+          physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
+
+server:
+  port: 8080
+
+management:
+  server:
+    port: 9090
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    root: INFO
+    app.aipacemaker: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"

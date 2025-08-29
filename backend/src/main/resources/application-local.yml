@@ -1,0 +1,35 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/aipacemaker_local
+    username: postgre
+    password: postgre
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+
+decorator:
+  datasource:
+    enabled: true
+    datasource-proxy:
+      logging: slf4j
+      query:
+        enable-logging: true
+        log-level: debug
+      slow-query:
+        enable-logging: true
+        threshold: 1000
+        log-level: warn
+
+logging:
+  level:
+    net.ttddyy.dsproxy.listener: DEBUG
