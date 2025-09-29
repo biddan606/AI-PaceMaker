@@ -1,0 +1,90 @@
+name: 🛠️ 인프라/DevOps
+description: 인프라 구성 및 DevOps 작업을 위한 이슈를 생성합니다
+title: "[INFRA] 인프라 작업 제목"
+labels: [
+  "type:infra"
+]
+assignees: []
+body:
+  - type: input
+    id: issue-id
+    attributes:
+      label: Issue ID
+      description: 버전-팀-번호 형식으로 입력하세요 (예: v1.0.0-DO-01)
+      placeholder: "v1.0.0-DO-01"
+    validations:
+      required: true
+
+  - type: textarea
+    id: infrastructure-goal
+    attributes:
+      label: 인프라 목표 (Infrastructure Goal)
+      description: 이 인프라 작업으로 달성하고자 하는 목표
+      placeholder: |
+        이메일 발송 기능을 안정적으로 제공하기 위해 AWS SES를 구성하고, 발송 성공률을 모니터링할 수 있는 환경을 구축한다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: infrastructure-requirements
+    attributes:
+      label: 인프라 요구사항 (Infrastructure Requirements)
+      description: 구축해야 할 인프라 구성 요소들
+      placeholder: |
+        - AWS SES 서비스 구성 및 도메인 인증
+        - 이메일 템플릿 설정
+        - API Key 생성 및 권한 설정
+        - CloudWatch를 통한 발송 모니터링 환경 구축
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: 완료 조건 (Acceptance Criteria)
+      description: 이 인프라 작업이 완료되었다고 판단할 수 있는 구체적인 조건들
+      placeholder: |
+        - [ ] AWS SES가 활성화되고 도메인 인증이 완료됨
+        - [ ] 백엔드 애플리케이션에서 SES API를 통해 이메일 발송 가능
+        - [ ] CloudWatch에서 이메일 발송 성공/실패율 모니터링 가능
+        - [ ] API Key가 AWS Secrets Manager에 안전하게 저장됨
+    validations:
+      required: true
+
+  - type: textarea
+    id: security-considerations
+    attributes:
+      label: 보안 고려사항 (Security Considerations)
+      description: 이 인프라 작업에서 고려해야 할 보안 사항들
+      placeholder: |
+        - API Key는 코드에 하드코딩하지 않고 Secrets Manager 사용
+        - 최소 권한 원칙에 따른 IAM 역할 설정
+        - 이메일 발송량 제한 정책 적용
+    validations:
+      required: false
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: 의존성 (Dependencies)
+      description: 이 인프라 작업을 위해 필요한 선행 작업이나 영향을 받는 후속 작업들
+      placeholder: |
+        선행 작업:
+        - AWS 계정 및 권한 설정 완료
+
+        후속 작업에 영향:
+        - v1.0.0-BE-01 (회원가입 API) - SES API 키 필요
+    validations:
+      required: false
+
+  - type: textarea
+    id: monitoring-requirements
+    attributes:
+      label: 모니터링 요구사항 (Monitoring Requirements)
+      description: 구축된 인프라를 모니터링하기 위한 요구사항
+      placeholder: |
+        - 이메일 발송 성공률 대시보드
+        - 발송 실패 시 즉시 알림
+        - 일일/주간 발송량 추이 모니터링
+    validations:
+      required: false

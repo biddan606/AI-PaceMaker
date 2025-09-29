@@ -1,0 +1,79 @@
+name: 🚀 기능 개발
+description: 새로운 기능 개발을 위한 이슈를 생성합니다
+title: "[FEATURE] 기능 제목"
+labels: [
+  "type:feature"
+]
+assignees: []
+body:
+  - type: input
+    id: issue-id
+    attributes:
+      label: Issue ID
+      description: 버전-팀-번호 형식으로 입력하세요 (예: v1.0.0-DS-01)
+      placeholder: "v1.0.0-DS-01"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: team
+    attributes:
+      label: 담당 팀
+      description: 이 기능을 담당할 팀을 선택하세요
+      options:
+        - DS (Design)
+        - BE (Backend)
+        - FE (Frontend)
+        - DO (DevOps)
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: 사용자 스토리 (User Story)
+      description: "When [상황]일 때, [사용자]는 [목적]을 위해 [행동]하고 싶어한다."
+      placeholder: |
+        When 아이디어를 기록하고 싶을 때, 사용자는 빠른 계획 수립을 위해 AI의 도움을 받아 구체적인 백로그로 변환하고 싶어한다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: abstract-requirements
+    attributes:
+      label: 추상화된 요구사항 (Abstract Requirements)
+      description: 구체적인 구현 방법보다는 "무엇"을 달성해야 하는지에 집중하여 작성하세요
+      placeholder: |
+        - 사용자 아이디어 입력을 받아 AI와 대화할 수 있는 인터페이스 제공
+        - AI 응답을 실시간으로 표시하는 기능 구현
+        - 대화 결과를 백로그 형태로 구조화하여 저장하는 기능 제공
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: 완료 조건 (Acceptance Criteria)
+      description: 이 기능이 완료되었다고 판단할 수 있는 구체적인 조건들
+      placeholder: |
+        - [ ] 사용자가 아이디어를 입력할 수 있다
+        - [ ] AI와 실시간 대화가 가능하다
+        - [ ] 대화 결과를 백로그로 저장할 수 있다
+        - [ ] 저장된 백로그가 목록에 표시된다
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: 의존성 (Dependencies)
+      description: 이 작업을 시작하기 전에 완료되어야 할 다른 이슈들
+      placeholder: |
+        선행 작업:
+        - v1.0.0-DO-01 (AWS SES 구성)
+        - v1.0.0-BE-02 (JWT 인증 구현)
+
+        후속 작업에 영향:
+        - v1.0.0-FE-02 (백로그 UI 구현)
+    validations:
+      required: false

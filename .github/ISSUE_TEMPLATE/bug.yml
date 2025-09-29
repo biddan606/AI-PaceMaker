@@ -1,0 +1,115 @@
+name: 🐛 버그 수정
+description: 버그 수정을 위한 이슈를 생성합니다
+title: "[BUG] 버그 제목"
+labels: [
+  "type:bug"
+]
+assignees: []
+body:
+  - type: input
+    id: issue-id
+    attributes:
+      label: Issue ID
+      description: 버전-팀-번호 형식으로 입력하세요 (예: v1.0.0-BE-01)
+      placeholder: "v1.0.0-BE-01"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: team
+    attributes:
+      label: 담당 팀
+      description: 이 버그를 담당할 팀을 선택하세요
+      options:
+        - DS (Design)
+        - BE (Backend)
+        - FE (Frontend)
+        - DO (DevOps)
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: 현재 동작 (Current Behavior)
+      description: 현재 어떤 문제가 발생하고 있는지 설명하세요
+      placeholder: |
+        - 로그인 시 JWT 토큰이 만료된 경우 자동 갱신이 되지 않음
+        - 사용자가 재로그인을 해야만 서비스 이용 가능
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: 기대 동작 (Expected Behavior)
+      description: 어떻게 동작해야 하는지 설명하세요
+      placeholder: |
+        - JWT 토큰 만료 시 Refresh Token을 사용하여 자동으로 새 토큰 발급
+        - 사용자는 토큰 만료를 인지하지 못한 채 서비스 계속 이용
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: 재현 단계 (Steps to Reproduce)
+      description: 버그를 재현할 수 있는 단계를 작성하세요
+      placeholder: |
+        1. 로그인 후 1시간 이상 대기
+        2. 백로그 생성 API 호출
+        3. 401 Unauthorized 에러 발생
+        4. 페이지가 로그인 화면으로 리디렉션됨
+    validations:
+      required: true
+
+  - type: textarea
+    id: fix-requirements
+    attributes:
+      label: 수정 요구사항 (Fix Requirements)
+      description: 이 버그를 수정하기 위해 필요한 작업들
+      placeholder: |
+        - API 인터셉터에서 401 에러 감지 시 자동 토큰 갱신 로직 추가
+        - 토큰 갱신 실패 시에만 로그아웃 처리
+        - 갱신 성공 시 원래 요청 재시도
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: 완료 조건 (Acceptance Criteria)
+      description: 이 버그가 수정되었다고 판단할 수 있는 구체적인 조건들
+      placeholder: |
+        - [ ] Access Token 만료 시 자동으로 Refresh Token으로 갱신 시도
+        - [ ] 갱신 성공 시 원래 API 요청이 정상 처리됨
+        - [ ] Refresh Token도 만료된 경우에만 로그아웃 처리
+        - [ ] 사용자는 토큰 만료를 인지하지 못함
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: 의존성 (Dependencies)
+      description: 이 버그 수정을 위해 필요한 선행 작업이나 영향을 받는 후속 작업들
+      placeholder: |
+        선행 작업:
+        - v1.0.0-BE-02 (JWT 인증 구현) - 토큰 관리 로직 필요
+
+        후속 작업에 영향:
+        - v1.0.0-FE-03 (로그인 UI) - 수정된 인증 로직 반영 필요
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 환경 정보 (Environment)
+      description: 버그가 발생하는 환경 정보
+      placeholder: |
+        - 브라우저: Chrome 121.0
+        - OS: macOS 14.0
+        - 디바이스: Desktop
+    validations:
+      required: false
