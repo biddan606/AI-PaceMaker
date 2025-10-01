@@ -1,9 +1,7 @@
 name: 🎨 디자인
 description: UI/UX 디자인 작업을 위한 이슈를 생성합니다
 title: "[DESIGN] 디자인 작업 제목"
-labels: [
-  "type:design"
-]
+labels: ["type:design"]
 assignees: []
 body:
   - type: input

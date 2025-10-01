@@ -1,9 +1,7 @@
 name: 🐛 버그 수정
 description: 버그 수정을 위한 이슈를 생성합니다
 title: "[BUG] 버그 제목"
-labels: [
-  "type:bug"
-]
+labels: ["type:bug"]
 assignees: []
 body:
   - type: input

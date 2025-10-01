@@ -1,9 +1,7 @@
 name: 🚀 기능 개발
 description: 새로운 기능 개발을 위한 이슈를 생성합니다
 title: "[FEATURE] 기능 제목"
-labels: [
-  "type:feature"
-]
+labels: ["type:feature"]
 assignees: []
 body:
   - type: input

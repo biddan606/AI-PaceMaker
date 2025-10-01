@@ -1,9 +1,7 @@
 name: 🛠️ 인프라/DevOps
 description: 인프라 구성 및 DevOps 작업을 위한 이슈를 생성합니다
 title: "[INFRA] 인프라 작업 제목"
-labels: [
-  "type:infra"
-]
+labels: ["type:infra"]
 assignees: []
 body:
   - type: input
