@@ -1,38 +1,19 @@
 name: 🚀 기능 개발
 description: 새로운 기능 개발을 위한 이슈를 생성합니다
-title: "[FEATURE] 기능 제목"
+title: "[v1.0.0-팀-번호] 작업 제목을 입력하세요"
 labels: ["type:feature"]
 assignees: []
 body:
-  - type: input
-    id: issue-id
-    attributes:
-      label: Issue ID
-      description: "버전-팀-번호 형식으로 입력하세요 (예: v1.0.0-DS-01)"
-      placeholder: "v1.0.0-DS-01"
-    validations:
-      required: true
-
-  - type: dropdown
-    id: team
-    attributes:
-      label: 담당 팀
-      description: 이 기능을 담당할 팀을 선택하세요
-      options:
-        - DS (Design)
-        - BE (Backend)
-        - FE (Frontend)
-        - DO (DevOps)
-    validations:
-      required: true
-
   - type: textarea
     id: user-story
     attributes:
       label: 사용자 스토리 (User Story)
       description: "When [상황]일 때, [사용자]는 [목적]을 위해 [행동]하고 싶어한다."
       placeholder: |
-        When 아이디어를 기록하고 싶을 때, 사용자는 빠른 계획 수립을 위해 AI의 도움을 받아 구체적인 백로그로 변환하고 싶어한다.
+        예시 (DS): When 서비스를 처음 사용하거나 재접속할 때, 사용자는 직관적이고 안전한 인증 과정을 통해 빠르게 자신의 작업 공간에 접근하고 싶어한다.
+        예시 (BE): When 사용자가 서비스에 접근하려고 할 때, 시스템은 안전한 인증 과정을 통해 사용자를 확인하고, 작업 흐름이 끊기지 않도록 자동으로 세션을 관리해야 한다.
+        예시 (FE): When 사용자가 서비스에 접근하려고 할 때, 직관적인 인증 인터페이스를 통해 회원가입/로그인하고, 세션이 끊기지 않는 매끄러운 경험을 제공받고 싶어한다.
+        예시 (DO): When 사용자 회원가입 시 이메일 인증이 필요할 때, 시스템은 안정적이고 확장 가능한 이메일 발송 인프라를 통해 사용자 온보딩 과정을 지원해야 한다.
     validations:
       required: true
 
@@ -42,9 +23,25 @@ body:
       label: 추상화된 요구사항 (Abstract Requirements)
       description: 구체적인 구현 방법보다는 "무엇"을 달성해야 하는지에 집중하여 작성하세요
       placeholder: |
-        - 사용자 아이디어 입력을 받아 AI와 대화할 수 있는 인터페이스 제공
-        - AI 응답을 실시간으로 표시하는 기능 구현
-        - 대화 결과를 백로그 형태로 구조화하여 저장하는 기능 제공
+        예시 (DS):
+        - 사용자 인증 플로우의 전체 여정을 시각적으로 설계
+        - 각 인증 단계별 사용자 인터페이스 디자인
+        - 다양한 상태(성공, 실패, 로딩)에 대한 시각적 피드백 시스템 구축
+
+        예시 (BE):
+        - 사용자 자격 증명 검증 및 JWT 토큰 발급 시스템 구현
+        - Access Token과 Refresh Token을 활용한 이중 토큰 인증 체계 구축
+        - 자동 세션 갱신을 위한 토큰 리프레시 메커니즘 개발
+
+        예시 (FE):
+        - 사용자 인증 관련 모든 UI 컴포넌트 구현
+        - JWT 토큰 기반 자동 세션 관리 시스템
+        - API 요청 시 자동 토큰 갱신 인터셉터 구현
+
+        예시 (DO):
+        - AWS SES 서비스 구성 및 도메인 인증 설정
+        - 이메일 발송을 위한 API 키 생성 및 안전한 저장 체계 구축
+        - 이메일 발송 성공/실패율 모니터링 시스템 구축
     validations:
       required: true
 
@@ -54,10 +51,29 @@ body:
       label: 완료 조건 (Acceptance Criteria)
       description: 이 기능이 완료되었다고 판단할 수 있는 구체적인 조건들
       placeholder: |
-        - [ ] 사용자가 아이디어를 입력할 수 있다
-        - [ ] AI와 실시간 대화가 가능하다
-        - [ ] 대화 결과를 백로그로 저장할 수 있다
-        - [ ] 저장된 백로그가 목록에 표시된다
+        예시 (DS):
+        - [ ] 회원가입부터 로그인까지 전체 플로우 와이어프레임 완성
+        - [ ] 각 인증 화면의 UI 컴포넌트 설계 완료
+        - [ ] 에러 상태별 시각적 피드백 디자인 완료
+        - [ ] 개발팀이 구현 가능한 수준의 디자인 스펙 문서 완성
+
+        예시 (BE):
+        - [ ] 로그인 API가 유효한 자격 증명으로 JWT 토큰을 발급한다
+        - [ ] 잘못된 자격 증명에 대해 적절한 에러 응답을 반환한다
+        - [ ] Access Token 갱신 API가 유효한 Refresh Token으로 새 토큰을 발급한다
+        - [ ] 만료되거나 무효한 토큰에 대한 에러 처리가 정상 동작한다
+
+        예시 (FE):
+        - [ ] 회원가입/로그인 UI가 디자인 스펙에 맞게 구현된다
+        - [ ] JWT 토큰이 안전하게 저장되고 관리된다
+        - [ ] API 401 에러 시 자동 토큰 갱신이 동작한다
+        - [ ] 인증 관련 에러 상황이 적절히 사용자에게 표시된다
+
+        예시 (DO):
+        - [ ] AWS SES가 활성화되고 도메인 인증이 완료된다
+        - [ ] 백엔드에서 SES API를 통해 이메일 발송이 가능하다
+        - [ ] API Key가 AWS Secrets Manager에 안전하게 저장된다
+        - [ ] CloudWatch에서 이메일 발송 성공/실패율을 모니터링할 수 있다
     validations:
       required: true
 
