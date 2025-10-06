@@ -6,41 +6,73 @@
   :root {
     /* Border Radius */
     --radius: 0.75rem;
-    
+
     /* Colors - AI 페이스메이커 테마 */
-    --color-border: hsl(240 5.9% 90%);
-    --color-input: hsl(240 5.9% 90%);
-    --color-ring: hsl(270 50% 60%);
-    --color-background: hsl(0 0% 100%);
-    --color-foreground: hsl(280 10% 18%);
-    
+    --background: 0 0% 100%;
+    --foreground: 280 10% 18%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 270 50% 60%;
+
+    /* Primary */
+    --primary: 270 50% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary */
+    --secondary: 24 70% 60%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Accent */
+    --accent: 160 45% 50%;
+    --accent-foreground: 0 0% 100%;
+
     /* Muted */
-    --color-muted: hsl(240 4% 95%);
-    --color-muted-foreground: hsl(240 4% 46%);
-    
+    --muted: 240 4% 95%;
+    --muted-foreground: 240 4% 46%;
+
     /* Destructive */
-    --color-destructive: hsl(0 72% 51%);
-    --color-destructive-foreground: hsl(0 0% 100%);
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Card & Popover */
+    --card: 0 0% 100%;
+    --card-foreground: 280 10% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 280 10% 18%;
   }
-  
+
   .dark {
-    --color-background: hsl(280 10% 8%);
-    --color-foreground: hsl(0 0% 95%);
-    --color-border: hsl(280 10% 20%);
-    --color-input: hsl(280 10% 20%);
-    --color-ring: hsl(270 60% 70%);
-    
-    --color-muted: hsl(280 10% 20%);
-    --color-muted-foreground: hsl(240 5% 64%);
-    
-    --color-destructive: hsl(0 62% 45%);
-    --color-destructive-foreground: hsl(0 0% 100%);
+    --background: 280 10% 8%;
+    --foreground: 0 0% 95%;
+    --border: 280 10% 20%;
+    --input: 280 10% 20%;
+    --ring: 270 60% 70%;
+
+    --primary: 270 60% 70%;
+    --primary-foreground: 280 10% 8%;
+
+    --secondary: 24 80% 70%;
+    --secondary-foreground: 280 10% 8%;
+
+    --accent: 160 50% 60%;
+    --accent-foreground: 280 10% 8%;
+
+    --muted: 280 10% 20%;
+    --muted-foreground: 240 5% 64%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --card: 280 10% 8%;
+    --card-foreground: 0 0% 95%;
+    --popover: 280 10% 8%;
+    --popover-foreground: 0 0% 95%;
   }
-  
+
   * {
     @apply border-border;
   }
-  
+
   body {
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
@@ -72,46 +104,46 @@
   .btn {
     @apply inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
-  
+
   .btn-primary {
     @apply btn bg-primary text-primary-foreground px-4 py-2 hover:opacity-90;
   }
-  
+
   .btn-secondary {
     @apply btn bg-secondary text-secondary-foreground px-4 py-2 hover:opacity-90;
   }
-  
+
   .btn-outline {
     @apply btn border border-input bg-background px-4 py-2 hover:bg-accent hover:text-accent-foreground;
   }
-  
+
   .btn-ghost {
     @apply btn px-4 py-2 hover:bg-accent/10 hover:text-accent;
   }
-  
+
   /* 카드 컴포넌트 */
   .card {
-    @apply bg-white dark:bg-gray-800 rounded-[var(--radius)] shadow-md p-6 border border-border;
+    @apply bg-card rounded-[var(--radius)] shadow-md p-6 border border-border;
   }
-  
+
   .card-hover {
     @apply card transition-shadow hover:shadow-lg cursor-pointer;
   }
-  
+
   /* 입력 컴포넌트 */
   .input {
     @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
-  
+
   .textarea {
     @apply flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
-  
+
   /* 채팅 버블 스타일 */
   .chat-bubble-user {
     @apply bg-primary text-primary-foreground rounded-2xl rounded-br-sm px-4 py-2 max-w-[70%] ml-auto;
   }
-  
+
   .chat-bubble-ai {
     @apply bg-muted text-muted-foreground rounded-2xl rounded-bl-sm px-4 py-2 max-w-[70%];
   }
