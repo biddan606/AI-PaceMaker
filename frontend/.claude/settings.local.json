@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Read(//Users/wyu/dev/AI-PaceMaker/**)"
-    ],
-    "deny": [],
-    "ask": []
-  }
-}
