@@ -1,36 +1,40 @@
 package app.aipacemaker.backend.auth.endpoint;
 
-import app.aipacemaker.backend.TestcontainersConfiguration;
-import app.aipacemaker.backend.auth.model.EmailVerificationToken;
-import app.aipacemaker.backend.auth.model.EmailVerificationTokenRepository;
-import app.aipacemaker.backend.auth.model.User;
-import app.aipacemaker.backend.auth.model.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import(TestcontainersConfiguration.class)
-@ActiveProfiles("test")
-@Transactional
-@DisplayName("AuthController Endpoint 테스트")
+import app.aipacemaker.backend.auth.model.exception.DuplicateEmailException;
+import app.aipacemaker.backend.auth.model.exception.ExpiredVerificationTokenException;
+import app.aipacemaker.backend.auth.model.exception.InvalidPasswordException;
+import app.aipacemaker.backend.auth.model.exception.InvalidVerificationTokenException;
+import app.aipacemaker.backend.auth.usecase.RegisterUser;
+import app.aipacemaker.backend.auth.usecase.VerifyEmail;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+/**
+ * AuthController API 테스트
+ *
+ * HTTP 레이어만 검증: 요청/응답 직렬화, 상태 코드, 예외 핸들링
+ * UseCase는 MockitoBean으로 격리하여 HTTP 계층만 테스트
+ * Security는 제외하여 테스트 단순화 (Security 통합은 통합 테스트에서 검증)
+ * 비즈니스 로직은 통합 테스트에서 검증
+ */
+@WebMvcTest(
+    controllers = AuthController.class,
+    excludeAutoConfiguration = SecurityAutoConfiguration.class
+)
+@DisplayName("AuthController API 테스트")
 class AuthControllerTest {
 
     @Autowired
@@ -39,65 +43,34 @@ class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private UserRepository userRepository;
+    @MockitoBean
+    private RegisterUser registerUser;
 
-    @Autowired
-    private EmailVerificationTokenRepository tokenRepository;
+    @MockitoBean
+    private VerifyEmail verifyEmail;
 
     @Test
-    @DisplayName("POST /api/users - 회원가입 성공")
-    void registerUserSuccessfully() throws Exception {
+    @DisplayName("POST /api/users - 유효한 요청이면 201 Created와 userId, email, message를 반환한다")
+    void createUserSuccess() throws Exception {
         // given
         RegisterRequest request = new RegisterRequest("test@example.com", "password123");
+        RegisterUser.Result result = new RegisterUser.Result(1L, "test@example.com", true);
+        when(registerUser.execute(any(RegisterUser.Command.class))).thenReturn(result);
 
         // when & then
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.userId").isNumber())
+                .andExpect(jsonPath("$.userId").value(1))
                 .andExpect(jsonPath("$.email").value("test@example.com"))
                 .andExpect(jsonPath("$.message").exists());
     }
 
     @Test
-    @DisplayName("POST /api/users - 비밀번호 정책 위반 시 400")
-    void registerUserWithInvalidPassword() throws Exception {
-        // given
-        RegisterRequest request = new RegisterRequest("test@example.com", "short1");
-
-        // when & then
-        mockMvc.perform(post("/api/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @DisplayName("POST /api/users - 중복 이메일 시 409")
-    void registerUserWithDuplicateEmail() throws Exception {
-        // given
-        User existingUser = User.builder()
-                .email("test@example.com")
-                .password("encodedPassword123")
-                .emailVerified(false)
-                .build();
-        userRepository.save(existingUser);
-
-        RegisterRequest request = new RegisterRequest("test@example.com", "password123");
-
-        // when & then
-        mockMvc.perform(post("/api/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isConflict());
-    }
-
-    @Test
-    @DisplayName("POST /api/users - 필수 필드 누락 시 400")
-    void registerUserWithMissingFields() throws Exception {
-        // given
+    @DisplayName("POST /api/users - 필수 필드 누락 시 400 Bad Request를 반환한다")
+    void missingFieldsReturns400() throws Exception {
+        // given: password 필드 누락
         String invalidRequest = "{\"email\":\"test@example.com\"}";
 
         // when & then
@@ -108,8 +81,8 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/users - 잘못된 이메일 형식 시 400")
-    void registerUserWithInvalidEmailFormat() throws Exception {
+    @DisplayName("POST /api/users - 잘못된 이메일 형식이면 400 Bad Request를 반환한다")
+    void invalidEmailFormatReturns400() throws Exception {
         // given
         RegisterRequest request = new RegisterRequest("invalid-email", "password123");
 
@@ -121,79 +94,101 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/users/verification - 이메일 인증 성공")
-    void verifyEmailSuccessfully() throws Exception {
+    @DisplayName("POST /api/users/verification - 유효한 토큰이면 200 OK와 userId, email, verified, message를 반환한다")
+    void verifyEmailSuccess() throws Exception {
         // given
-        User user = User.builder()
-                .email("test@example.com")
-                .password("encodedPassword123")
-                .emailVerified(false)
-                .build();
-        User savedUser = userRepository.save(user);
-
-        String token = UUID.randomUUID().toString();
-        EmailVerificationToken verificationToken = EmailVerificationToken.builder()
-                .userId(savedUser.getId())
-                .token(token)
-                .expiresAt(LocalDateTime.now().plusHours(24))
-                .build();
-        tokenRepository.save(verificationToken);
-
-        VerifyEmailRequest request = new VerifyEmailRequest(token);
+        VerifyEmailRequest request = new VerifyEmailRequest("valid-token");
+        VerifyEmail.Result result = new VerifyEmail.Result(1L, "test@example.com", true);
+        when(verifyEmail.execute(any(VerifyEmail.Command.class))).thenReturn(result);
 
         // when & then
         mockMvc.perform(post("/api/users/verification")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId").value(savedUser.getId()))
+                .andExpect(jsonPath("$.userId").value(1))
                 .andExpect(jsonPath("$.email").value("test@example.com"))
                 .andExpect(jsonPath("$.verified").value(true))
                 .andExpect(jsonPath("$.message").exists());
     }
 
     @Test
-    @DisplayName("POST /api/users/verification - 만료된 토큰 시 400")
-    void verifyEmailWithExpiredToken() throws Exception {
+    @DisplayName("POST /api/users - 비밀번호 검증 실패 시 400 Bad Request와 ProblemDetail을 반환한다")
+    void invalidPasswordReturns400() throws Exception {
         // given
-        User user = User.builder()
-                .email("test@example.com")
-                .password("encodedPassword123")
-                .emailVerified(false)
-                .build();
-        User savedUser = userRepository.save(user);
-
-        String token = UUID.randomUUID().toString();
-        EmailVerificationToken expiredToken = EmailVerificationToken.builder()
-                .userId(savedUser.getId())
-                .token(token)
-                .expiresAt(LocalDateTime.now().minusHours(1))
-                .build();
-        tokenRepository.save(expiredToken);
-
-        VerifyEmailRequest request = new VerifyEmailRequest(token);
+        RegisterRequest request = new RegisterRequest("test@example.com", "short1");
+        when(registerUser.execute(any(RegisterUser.Command.class)))
+                .thenThrow(new InvalidPasswordException("비밀번호는 8자 이상이며 영문자와 숫자를 포함해야 합니다."));
 
         // when & then
-        mockMvc.perform(post("/api/users/verification")
+        mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").exists())
+                .andExpect(jsonPath("$.title").exists())
+                .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
-    @DisplayName("POST /api/users/verification - 존재하지 않는 토큰 시 404")
-    void verifyEmailWithInvalidToken() throws Exception {
+    @DisplayName("POST /api/users - 중복 이메일이면 409 Conflict와 ProblemDetail을 반환한다")
+    void duplicateEmailReturns409() throws Exception {
         // given
-        VerifyEmailRequest request = new VerifyEmailRequest("nonexistent-token");
+        RegisterRequest request = new RegisterRequest("existing@example.com", "password123");
+        when(registerUser.execute(any(RegisterUser.Command.class)))
+                .thenThrow(new DuplicateEmailException("existing@example.com"));
+
+        // when & then
+        mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.type").exists())
+                .andExpect(jsonPath("$.title").exists())
+                .andExpect(jsonPath("$.status").value(409));
+    }
+
+    @Test
+    @DisplayName("POST /api/users/verification - 만료된 토큰이면 400 Bad Request와 ProblemDetail을 반환한다")
+    void expiredTokenReturns400() throws Exception {
+        // given
+        VerifyEmailRequest request = new VerifyEmailRequest("expired-token");
+        when(verifyEmail.execute(any(VerifyEmail.Command.class)))
+                .thenThrow(new ExpiredVerificationTokenException("expired-token"));
 
         // when & then
         mockMvc.perform(post("/api/users/verification")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").exists())
+                .andExpect(jsonPath("$.title").exists())
+                .andExpect(jsonPath("$.status").value(400));
     }
 
-    record RegisterRequest(String email, String password) {}
+    @Test
+    @DisplayName("POST /api/users/verification - 존재하지 않는 토큰이면 404 Not Found와 ProblemDetail을 반환한다")
+    void invalidTokenReturns404() throws Exception {
+        // given
+        VerifyEmailRequest request = new VerifyEmailRequest("nonexistent-token");
+        when(verifyEmail.execute(any(VerifyEmail.Command.class)))
+                .thenThrow(new InvalidVerificationTokenException("nonexistent-token"));
 
-    record VerifyEmailRequest(String token) {}
+        // when & then
+        mockMvc.perform(post("/api/users/verification")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.type").exists())
+                .andExpect(jsonPath("$.title").exists())
+                .andExpect(jsonPath("$.status").value(404));
+    }
+
+    record RegisterRequest(String email, String password) {
+
+    }
+
+    record VerifyEmailRequest(String token) {
+
+    }
 }
