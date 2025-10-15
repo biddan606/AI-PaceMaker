@@ -56,3 +56,7 @@ jwt:
   secret: ${JWT_SECRET:default-secret-key-for-development-only-must-be-at-least-256-bits-long}
   access-token-expiry: 3600000    # 1시간 (milliseconds)
   refresh-token-expiry: 2592000000 # 30일 (milliseconds)
+
+security:
+  bcrypt:
+    strength: 10  # BCrypt 암호화 강도 (4-31, 기본값 10)
