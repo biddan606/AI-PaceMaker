@@ -53,13 +53,14 @@ public class JwtTokenProvider {
     /**
      * Refresh Token 생성
      */
-    public String generateRefreshToken(Long userId) {
+    public String generateRefreshToken(Long userId, String deviceId) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + refreshTokenExpiry);
 
         return Jwts.builder()
                 .subject(userId.toString())
                 .claim("type", "refresh")
+                .claim("deviceId", deviceId)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(secretKey)
@@ -96,6 +97,14 @@ public class JwtTokenProvider {
     public String extractEmail(String token) {
         Claims claims = parseClaims(token);
         return claims.get("email", String.class);
+    }
+
+    /**
+     * 토큰에서 deviceId 추출
+     */
+    public String extractDeviceId(String token) {
+        Claims claims = parseClaims(token);
+        return claims.get("deviceId", String.class);
     }
 
     /**

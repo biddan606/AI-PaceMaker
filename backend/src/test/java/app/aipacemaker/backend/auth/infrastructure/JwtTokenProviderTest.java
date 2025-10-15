@@ -45,13 +45,45 @@ class JwtTokenProviderTest {
     void generateRefreshToken() {
         // given
         Long userId = 1L;
+        String deviceId = "test-device";
 
         // when
-        String token = jwtTokenProvider.generateRefreshToken(userId);
+        String token = jwtTokenProvider.generateRefreshToken(userId, deviceId);
 
         // then
         assertThat(token).isNotNull().isNotEmpty();
         assertThat(token.split("\\.")).hasSize(3);
+    }
+
+    @Test
+    @DisplayName("다른 deviceId로 Refresh Token을 생성하면 다른 토큰이 반환된다")
+    void generateDifferentRefreshTokensWithDifferentDevices() {
+        // given
+        Long userId = 1L;
+        String deviceId1 = "device-1";
+        String deviceId2 = "device-2";
+
+        // when
+        String token1 = jwtTokenProvider.generateRefreshToken(userId, deviceId1);
+        String token2 = jwtTokenProvider.generateRefreshToken(userId, deviceId2);
+
+        // then: deviceId가 다르므로 토큰도 달라야 함
+        assertThat(token1).isNotEqualTo(token2);
+    }
+
+    @Test
+    @DisplayName("유효한 Refresh Token에서 deviceId를 추출하면 원본 deviceId가 반환된다")
+    void extractDeviceIdFromRefreshToken() {
+        // given
+        Long userId = 1L;
+        String deviceId = "mobile-device-001";
+        String token = jwtTokenProvider.generateRefreshToken(userId, deviceId);
+
+        // when
+        String extractedDeviceId = jwtTokenProvider.extractDeviceId(token);
+
+        // then
+        assertThat(extractedDeviceId).isEqualTo(deviceId);
     }
 
     @Test
