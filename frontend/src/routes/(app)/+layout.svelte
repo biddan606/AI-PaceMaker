@@ -2,18 +2,24 @@
 	import Header from '$lib/components/layout/Header.svelte';
 	import Sidebar from '$lib/components/layout/Sidebar.svelte';
 	import MobileNav from '$lib/components/layout/MobileNav.svelte';
+	import { authStore } from '$lib/stores/auth.svelte';
+	import { goto } from '$app/navigation';
 	import '../../app.css';
 
-	let { children } = $props();
+	let { children, data } = $props();
 
 	// 사이드바 열림/닫힘 상태 (모바일/태블릿용)
 	let isSidebarOpen = $state(false);
 
-	// TODO: 실제 사용자 데이터는 인증 스토어에서 가져오기
-	const user = {
-		name: '김성장',
-		email: 'user@example.com'
-	};
+	// +layout.ts에서 로드한 사용자 정보를 authStore에 동기화
+	$effect(() => {
+		if (data.user) {
+			authStore.setUser(data.user);
+		}
+	});
+
+	// authStore에서 사용자 정보 가져오기
+	const user = $derived(authStore.user);
 
 	function toggleSidebar() {
 		isSidebarOpen = !isSidebarOpen;
@@ -23,10 +29,9 @@
 		isSidebarOpen = false;
 	}
 
-	function handleLogout() {
-		// TODO: 실제 로그아웃 로직 구현 (인증 스토어와 연동)
-		console.log('로그아웃');
-		window.location.href = '/login';
+	async function handleLogout() {
+		await authStore.logout();
+		goto('/login');
 	}
 </script>
 
