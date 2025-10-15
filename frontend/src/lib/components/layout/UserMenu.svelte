@@ -30,6 +30,20 @@
 
 	// 사용자 이름의 첫 글자 (아바타 폴백)
 	const initials = $derived(user.name.charAt(0).toUpperCase());
+
+	// ESC 키로 메뉴 닫기
+	$effect(() => {
+		if (!isOpen) return;
+
+		function handleKeydown(event: KeyboardEvent) {
+			if (event.key === 'Escape') {
+				closeMenu();
+			}
+		}
+
+		window.addEventListener('keydown', handleKeydown);
+		return () => window.removeEventListener('keydown', handleKeydown);
+	});
 </script>
 
 <!-- 사용자 메뉴 컨테이너 -->
@@ -82,6 +96,8 @@
 		<!-- 메뉴 콘텐츠 -->
 		<div
 			class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-[#E5E5E5] py-2 z-50 animate-in fade-in slide-in-from-top"
+			role="menu"
+			aria-orientation="vertical"
 		>
 			<!-- 사용자 정보 -->
 			<div class="px-4 py-3 border-b border-[#E5E5E5]">
@@ -95,6 +111,7 @@
 					href="/app/settings/profile"
 					onclick={closeMenu}
 					class="block px-4 py-2 text-sm text-[#404040] hover:bg-[#F5F5F5] transition-colors"
+					role="menuitem"
 				>
 					프로필
 				</a>
@@ -102,6 +119,7 @@
 					href="/app/settings"
 					onclick={closeMenu}
 					class="block px-4 py-2 text-sm text-[#404040] hover:bg-[#F5F5F5] transition-colors"
+					role="menuitem"
 				>
 					설정
 				</a>
@@ -114,6 +132,7 @@
 			<button
 				onclick={handleLogout}
 				class="w-full text-left px-4 py-2 text-sm text-[#DC2626] hover:bg-[#FEF2F2] transition-colors"
+				role="menuitem"
 			>
 				로그아웃
 			</button>
