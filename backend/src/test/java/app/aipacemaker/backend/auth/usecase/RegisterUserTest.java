@@ -48,10 +48,11 @@ class RegisterUserTest extends BaseIntegrationTest {
     @Test
     @DisplayName("사용자가 회원가입하면 계정이 생성되고 비밀번호가 암호화되어 저장되며 인증 토큰이 발급되고 인증 이메일이 발송된다")
     void successfulRegistration() {
-        // given: 유효한 이메일과 비밀번호
+        // given: 유효한 이름, 이메일, 비밀번호
+        String name = "홍길동";
         String email = "newuser@example.com";
         String rawPassword = "password123";
-        RegisterUser.Command command = new RegisterUser.Command(email, rawPassword);
+        RegisterUser.Command command = new RegisterUser.Command(name, email, rawPassword);
 
         // when: 회원가입 요청
         RegisterUser.Result result = registerUser.execute(command);
@@ -64,6 +65,7 @@ class RegisterUserTest extends BaseIntegrationTest {
         // then: 사용자 계정이 생성되고 비밀번호가 암호화되어 저장됨
         Optional<User> savedUser = userRepository.findByEmail(email);
         assertThat(savedUser).isPresent();
+        assertThat(savedUser.get().getName()).isEqualTo(name);
         assertThat(savedUser.get().isEmailVerified()).isFalse();
         assertThat(savedUser.get().getPassword())
                 .isNotEqualTo(rawPassword)
@@ -86,7 +88,7 @@ class RegisterUserTest extends BaseIntegrationTest {
     @DisplayName("비밀번호가 8자 미만이거나 영문자와 숫자를 포함하지 않으면 InvalidPasswordException이 발생한다")
     void invalidPasswordFails() {
         // given: 정책 위반 비밀번호 (7자, 숫자 포함)
-        RegisterUser.Command command = new RegisterUser.Command("test@example.com", "short1");
+        RegisterUser.Command command = new RegisterUser.Command("테스터", "test@example.com", "short1");
 
         // when & then: InvalidPasswordException 발생
         assertThatThrownBy(() -> registerUser.execute(command))
@@ -98,6 +100,7 @@ class RegisterUserTest extends BaseIntegrationTest {
     void duplicateEmailFails() {
         // given: 이미 존재하는 사용자
         User existingUser = User.builder()
+                .name("기존사용자")
                 .email("existing@example.com")
                 .password("encodedPassword123")
                 .emailVerified(false)
@@ -105,7 +108,7 @@ class RegisterUserTest extends BaseIntegrationTest {
         userRepository.save(existingUser);
 
         // given: 동일한 이메일로 회원가입 시도
-        RegisterUser.Command command = new RegisterUser.Command("existing@example.com", "password123");
+        RegisterUser.Command command = new RegisterUser.Command("신규사용자", "existing@example.com", "password123");
 
         // when & then: DuplicateEmailException 발생
         assertThatThrownBy(() -> registerUser.execute(command))

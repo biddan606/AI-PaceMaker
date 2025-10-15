@@ -38,6 +38,7 @@ public class RegisterUser {
         // 3. 비밀번호 암호화 및 사용자 저장
         String encodedPassword = passwordEncoder.encode(command.password);
         User user = User.builder()
+                .name(command.name)
                 .email(command.email)
                 .password(encodedPassword)
                 .emailVerified(false)
@@ -63,7 +64,7 @@ public class RegisterUser {
         return new Result(savedUser.getId(), savedUser.getEmail(), true);
     }
 
-    public record Command(String email, String password) {}
+    public record Command(String name, String email, String password) {}
 
     public record Result(Long userId, String email, boolean verificationTokenCreated) {}
 }

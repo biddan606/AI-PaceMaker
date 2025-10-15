@@ -50,6 +50,7 @@ class LoginUserTest extends BaseIntegrationTest {
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
         User user = User.builder()
+                .name("테스트유저")
                 .email(email)
                 .password(encodedPassword)
                 .emailVerified(true)
@@ -91,6 +92,7 @@ class LoginUserTest extends BaseIntegrationTest {
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
         User user = User.builder()
+                .name("미인증유저")
                 .email(email)
                 .password(encodedPassword)
                 .emailVerified(false)
@@ -120,6 +122,7 @@ class LoginUserTest extends BaseIntegrationTest {
         String encodedPassword = passwordEncoder.encode(correctPassword);
 
         User user = User.builder()
+                .name("테스트유저")
                 .email(email)
                 .password(encodedPassword)
                 .emailVerified(true)
@@ -158,6 +161,7 @@ class LoginUserTest extends BaseIntegrationTest {
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
         User user = User.builder()
+                .name("테스트유저")
                 .email(email)
                 .password(encodedPassword)
                 .emailVerified(true)
@@ -193,6 +197,7 @@ class LoginUserTest extends BaseIntegrationTest {
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
         User user = User.builder()
+                .name("테스트유저")
                 .email(email)
                 .password(encodedPassword)
                 .emailVerified(true)
