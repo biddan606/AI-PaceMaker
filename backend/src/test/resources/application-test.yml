@@ -33,3 +33,7 @@ decorator:
 logging:
   level:
     net.ttddyy.dsproxy.listener: INFO
+
+security:
+  bcrypt:
+    strength: 4  # 테스트 속도 향상을 위한 최소 강도

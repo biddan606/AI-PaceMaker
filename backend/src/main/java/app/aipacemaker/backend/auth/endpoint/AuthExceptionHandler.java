@@ -1,8 +1,11 @@
 package app.aipacemaker.backend.auth.endpoint;
 
 import app.aipacemaker.backend.auth.model.exception.DuplicateEmailException;
+import app.aipacemaker.backend.auth.model.exception.ExpiredRefreshTokenException;
 import app.aipacemaker.backend.auth.model.exception.ExpiredVerificationTokenException;
+import app.aipacemaker.backend.auth.model.exception.InvalidCredentialsException;
 import app.aipacemaker.backend.auth.model.exception.InvalidPasswordException;
+import app.aipacemaker.backend.auth.model.exception.InvalidRefreshTokenException;
 import app.aipacemaker.backend.auth.model.exception.InvalidVerificationTokenException;
 import app.aipacemaker.backend.auth.model.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +42,15 @@ public class AuthExceptionHandler {
         log.warn("리소스 없음: {}", e.getMessage());
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
         problemDetail.setTitle("리소스를 찾을 수 없음");
+        return problemDetail;
+    }
+
+    // 인증 실패 예외 (Unauthorized)
+    @ExceptionHandler({InvalidCredentialsException.class, InvalidRefreshTokenException.class, ExpiredRefreshTokenException.class})
+    public ProblemDetail handleUnauthorizedException(RuntimeException e) {
+        log.warn("인증 실패: {}", e.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, e.getMessage());
+        problemDetail.setTitle("인증 실패");
         return problemDetail;
     }
 }
