@@ -1,6 +1,7 @@
 package app.aipacemaker.backend.auth.usecase;
 
 import app.aipacemaker.backend.BaseIntegrationTest;
+import app.aipacemaker.backend.auth.fixture.UserFixture;
 import app.aipacemaker.backend.auth.infrastructure.JwtTokenProvider;
 import app.aipacemaker.backend.auth.model.RefreshToken;
 import app.aipacemaker.backend.auth.model.RefreshTokenRepository;
@@ -47,13 +48,10 @@ class LoginUserTest extends BaseIntegrationTest {
         // given: 이메일 인증된 사용자
         String email = "verified@example.com";
         String rawPassword = "password123";
-        String encodedPassword = passwordEncoder.encode(rawPassword);
 
-        User user = User.builder()
-                .name("테스트유저")
+        User user = UserFixture.verifiedUser()
                 .email(email)
-                .password(encodedPassword)
-                .emailVerified(true)
+                .password(passwordEncoder.encode(rawPassword))
                 .build();
         User savedUser = userRepository.save(user);
 
@@ -89,13 +87,11 @@ class LoginUserTest extends BaseIntegrationTest {
         // given: 이메일 미인증 사용자
         String email = "unverified@example.com";
         String rawPassword = "password123";
-        String encodedPassword = passwordEncoder.encode(rawPassword);
 
-        User user = User.builder()
+        User user = UserFixture.unverifiedUser()
                 .name("미인증유저")
                 .email(email)
-                .password(encodedPassword)
-                .emailVerified(false)
+                .password(passwordEncoder.encode(rawPassword))
                 .build();
         User savedUser = userRepository.save(user);
 
@@ -121,11 +117,9 @@ class LoginUserTest extends BaseIntegrationTest {
         String correctPassword = "password123";
         String encodedPassword = passwordEncoder.encode(correctPassword);
 
-        User user = User.builder()
-                .name("테스트유저")
+        User user = UserFixture.verifiedUser()
                 .email(email)
-                .password(encodedPassword)
-                .emailVerified(true)
+                .password(passwordEncoder.encode(correctPassword))
                 .build();
         userRepository.save(user);
 
@@ -158,13 +152,10 @@ class LoginUserTest extends BaseIntegrationTest {
         // given: 이메일 인증된 사용자
         String email = "user@example.com";
         String rawPassword = "password123";
-        String encodedPassword = passwordEncoder.encode(rawPassword);
 
-        User user = User.builder()
-                .name("테스트유저")
+        User user = UserFixture.verifiedUser()
                 .email(email)
-                .password(encodedPassword)
-                .emailVerified(true)
+                .password(passwordEncoder.encode(rawPassword))
                 .build();
         User savedUser = userRepository.save(user);
 
@@ -194,13 +185,10 @@ class LoginUserTest extends BaseIntegrationTest {
         // given: 이메일 인증된 사용자
         String email = "user@example.com";
         String rawPassword = "password123";
-        String encodedPassword = passwordEncoder.encode(rawPassword);
 
-        User user = User.builder()
-                .name("테스트유저")
+        User user = UserFixture.verifiedUser()
                 .email(email)
-                .password(encodedPassword)
-                .emailVerified(true)
+                .password(passwordEncoder.encode(rawPassword))
                 .build();
         User savedUser = userRepository.save(user);
 
