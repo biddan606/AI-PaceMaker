@@ -38,6 +38,7 @@ class VerifyEmailTest extends BaseIntegrationTest {
     void successfulVerification() {
         // given
         User user = User.builder()
+                .name("테스트유저")
                 .email("test@example.com")
                 .password("encodedPassword123")
                 .emailVerified(false)
@@ -77,6 +78,7 @@ class VerifyEmailTest extends BaseIntegrationTest {
     void expiredTokenFails() {
         // given
         User user = User.builder()
+                .name("테스트유저")
                 .email("test@example.com")
                 .password("encodedPassword123")
                 .emailVerified(false)
@@ -114,6 +116,7 @@ class VerifyEmailTest extends BaseIntegrationTest {
     void alreadyVerifiedUserSuccess() {
         // given
         User user = User.builder()
+                .name("인증완료유저")
                 .email("test@example.com")
                 .password("encodedPassword123")
                 .emailVerified(true)

@@ -43,6 +43,7 @@ class RenewAccessTokenTest extends BaseIntegrationTest {
     void successfulRefresh() {
         // given: 사용자 및 유효한 Refresh Token 생성
         User user = User.builder()
+                .name("테스트유저")
                 .email("user@example.com")
                 .password("encodedPassword")
                 .emailVerified(true)
@@ -102,6 +103,7 @@ class RenewAccessTokenTest extends BaseIntegrationTest {
     void expiredToken() {
         // given: 사용자 및 만료된 Refresh Token 생성
         User user = User.builder()
+                .name("테스트유저")
                 .email("user@example.com")
                 .password("encodedPassword")
                 .emailVerified(true)
@@ -132,6 +134,7 @@ class RenewAccessTokenTest extends BaseIntegrationTest {
     void mismatchedDeviceId() {
         // given: 사용자 및 특정 기기의 Refresh Token 생성
         User user = User.builder()
+                .name("테스트유저")
                 .email("user@example.com")
                 .password("encodedPassword")
                 .emailVerified(true)
