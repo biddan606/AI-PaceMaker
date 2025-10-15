@@ -51,3 +51,8 @@ logging:
     app.aipacemaker: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
+
+jwt:
+  secret: ${JWT_SECRET:default-secret-key-for-development-only-must-be-at-least-256-bits-long}
+  access-token-expiry: 3600000    # 1시간 (milliseconds)
+  refresh-token-expiry: 2592000000 # 30일 (milliseconds)
