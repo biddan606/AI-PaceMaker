@@ -4,13 +4,13 @@ import app.aipacemaker.backend.auth.usecase.LoginUser;
 import app.aipacemaker.backend.auth.usecase.RegisterUser;
 import app.aipacemaker.backend.auth.usecase.RenewAccessToken;
 import app.aipacemaker.backend.auth.usecase.VerifyEmail;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,14 +25,16 @@ public class AuthController {
 
     /**
      * HttpOnly Cookie 생성 헬퍼 메서드
+     * SameSite=Lax 속성을 포함한 ResponseCookie를 생성합니다.
      */
-    private Cookie createHttpOnlyCookie(String name, String value, int maxAgeInSeconds) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false); // HTTPS 환경에서는 true로 설정
-        cookie.setPath("/");
-        cookie.setMaxAge(maxAgeInSeconds);
-        return cookie;
+    private ResponseCookie createHttpOnlyCookie(String name, String value, int maxAgeInSeconds) {
+        return ResponseCookie.from(name, value)
+                .path("/")
+                .httpOnly(true)
+                .secure(false) // 개발 환경: false, 프로덕션: true로 설정
+                .sameSite("Lax")
+                .maxAge(maxAgeInSeconds)
+                .build();
     }
 
     @PostMapping("/api/users")
@@ -85,12 +87,12 @@ public class AuthController {
         LoginUser.Result result = loginUser.execute(command);
 
         // Access Token을 HttpOnly Cookie로 설정 (1시간 = 3600초)
-        Cookie accessTokenCookie = createHttpOnlyCookie("accessToken", result.accessToken(), 3600);
-        response.addCookie(accessTokenCookie);
+        ResponseCookie accessTokenCookie = createHttpOnlyCookie("accessToken", result.accessToken(), 3600);
+        response.addHeader("Set-Cookie", accessTokenCookie.toString());
 
         // Refresh Token을 HttpOnly Cookie로 설정 (30일 = 2592000초)
-        Cookie refreshTokenCookie = createHttpOnlyCookie("refreshToken", result.refreshToken(), 2592000);
-        response.addCookie(refreshTokenCookie);
+        ResponseCookie refreshTokenCookie = createHttpOnlyCookie("refreshToken", result.refreshToken(), 2592000);
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
         // 응답 JSON에는 토큰을 제외하고 사용자 정보만 반환
         return ResponseEntity.ok(new LoginResponse(
@@ -116,8 +118,8 @@ public class AuthController {
         RenewAccessToken.Result result = renewAccessToken.execute(command);
 
         // 새로운 Access Token을 HttpOnly Cookie로 설정
-        Cookie accessTokenCookie = createHttpOnlyCookie("accessToken", result.accessToken(), 3600);
-        response.addCookie(accessTokenCookie);
+        ResponseCookie accessTokenCookie = createHttpOnlyCookie("accessToken", result.accessToken(), 3600);
+        response.addHeader("Set-Cookie", accessTokenCookie.toString());
 
         return ResponseEntity.ok(new RefreshTokenResponse(result.accessToken()));
     }
