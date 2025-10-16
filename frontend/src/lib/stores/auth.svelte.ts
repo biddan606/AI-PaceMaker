@@ -1,10 +1,24 @@
 // 사용자 인증 상태를 관리하는 Svelte 5 Runes 기반 스토어
 import type { User } from '$lib/types/navigation';
+import { apiPost } from '$lib/api/client';
+import { getOrCreateDeviceId } from '$lib/utils/device';
 
 interface AuthState {
 	user: User | null;
 	isLoading: boolean;
 	isAuthenticated: boolean;
+}
+
+interface LoginResponse {
+	userId: number;
+	email: string;
+	emailVerified: boolean;
+}
+
+interface RegisterResponse {
+	userId: number;
+	email: string;
+	message: string;
 }
 
 // 초기 상태
@@ -47,43 +61,60 @@ function createAuthStore() {
 			try {
 				state.isLoading = true;
 
-				const response = await fetch('/api/auth/login', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({ email, password }),
-					credentials: 'include' // HttpOnly Cookie 포함
+				const deviceId = getOrCreateDeviceId();
+				const data = await apiPost<LoginResponse>('/api/auth/login', {
+					email,
+					password,
+					deviceId
 				});
 
-				if (!response.ok) {
-					throw new Error('로그인에 실패했습니다.');
-				}
-
-				const data = await response.json();
-
-				// 사용자 정보 저장 (백엔드 응답 구조에 따라 조정 필요)
+				// 토큰은 HttpOnly Cookie로 자동 저장됨
+				// 사용자 정보만 스토어에 저장
 				this.setUser({
-					name: data.name || data.username || email.split('@')[0],
-					email: data.email || email,
-					avatar: data.avatar
+					name: email.split('@')[0], // 백엔드에서 name을 제공하지 않으므로 이메일에서 추출
+					email: data.email,
+					avatar: undefined
 				});
 
-				return { success: true };
+				return { success: true, emailVerified: data.emailVerified };
 			} catch (error) {
 				state.isLoading = false;
 				console.error('로그인 오류:', error);
-				return { success: false, error: '로그인에 실패했습니다.' };
+				return {
+					success: false,
+					error: error instanceof Error ? error.message : '로그인에 실패했습니다.'
+				};
+			}
+		},
+
+		// 회원가입
+		async register(name: string, email: string, password: string) {
+			try {
+				state.isLoading = true;
+
+				const data = await apiPost<RegisterResponse>('/api/users', {
+					name,
+					email,
+					password
+				});
+
+				state.isLoading = false;
+				return { success: true, message: data.message };
+			} catch (error) {
+				state.isLoading = false;
+				console.error('회원가입 오류:', error);
+				return {
+					success: false,
+					error: error instanceof Error ? error.message : '회원가입에 실패했습니다.'
+				};
 			}
 		},
 
 		// 로그아웃
 		async logout() {
 			try {
-				await fetch('/api/auth/logout', {
-					method: 'POST',
-					credentials: 'include'
-				});
+				// 로그아웃 API 호출 (Cookie 삭제)
+				await apiPost('/api/auth/logout', {});
 			} catch (error) {
 				console.error('로그아웃 오류:', error);
 			} finally {
@@ -97,6 +128,7 @@ function createAuthStore() {
 			try {
 				state.isLoading = true;
 
+				// apiClient를 사용하면 401 시 자동으로 토큰 갱신 시도
 				const response = await fetch('/api/auth/me', {
 					credentials: 'include'
 				});
@@ -104,7 +136,7 @@ function createAuthStore() {
 				if (response.ok) {
 					const data = await response.json();
 					this.setUser({
-						name: data.name || data.username || data.email?.split('@')[0] || '사용자',
+						name: data.name || data.email?.split('@')[0] || '사용자',
 						email: data.email,
 						avatar: data.avatar
 					});
