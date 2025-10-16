@@ -101,7 +101,7 @@
 			<!-- 메뉴 아이템 -->
 			<div class="py-1">
 				<a
-					href="/app/settings/profile"
+					href="/settings/profile"
 					onclick={closeMenu}
 					class="flex items-center gap-3 px-4 py-2 text-sm text-[#404040] hover:bg-[#F5F5F5] transition-colors"
 					role="menuitem"
@@ -117,7 +117,7 @@
 					<span>프로필</span>
 				</a>
 				<a
-					href="/app/settings"
+					href="/settings"
 					onclick={closeMenu}
 					class="flex items-center gap-3 px-4 py-2 text-sm text-[#404040] hover:bg-[#F5F5F5] transition-colors"
 					role="menuitem"

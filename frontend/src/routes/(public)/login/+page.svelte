@@ -39,7 +39,7 @@
 				}
 
 				// 로그인 성공 시 redirectTo 파라미터 확인하여 원래 페이지로 복귀
-				const redirectTo = $page.url.searchParams.get('redirectTo') || '/app/backlog';
+				const redirectTo = $page.url.searchParams.get('redirectTo') || '/backlog';
 				await goto(redirectTo);
 			} else {
 				errorMessage = result.error || '로그인에 실패했습니다.';

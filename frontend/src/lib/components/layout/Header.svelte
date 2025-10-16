@@ -32,7 +32,7 @@
 				</button>
 			{/if}
 
-			<a href={user ? '/app/backlog' : '/'} class="text-xl font-semibold text-[#171717]">
+			<a href={user ? '/backlog' : '/'} class="text-xl font-semibold text-[#171717]">
 				AI 페이스메이커
 			</a>
 		</div>

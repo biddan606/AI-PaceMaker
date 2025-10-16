@@ -15,10 +15,10 @@ export interface User {
 
 // 네비게이션 메뉴 항목 (디자인 컨셉 기준)
 export const NAV_ITEMS: NavItem[] = [
-	{ icon: '📋', label: '백로그', href: '/app/backlog', priority: 'P0' },
-	{ icon: '🎯', label: '이번 주 스프린트', href: '/app/sprint', priority: 'P0' },
-	{ icon: '📊', label: '히스토리', href: '/app/history', priority: 'P0' },
-	{ icon: '⚙️', label: '설정', href: '/app/settings', priority: 'P1' }
+	{ icon: '📋', label: '백로그', href: '/backlog', priority: 'P0' },
+	{ icon: '🎯', label: '이번 주 스프린트', href: '/sprint', priority: 'P0' },
+	{ icon: '📊', label: '히스토리', href: '/history', priority: 'P0' },
+	{ icon: '⚙️', label: '설정', href: '/settings', priority: 'P1' }
 ];
 
 // 모바일 하단 탭바용 메뉴 (설정 제외)
