@@ -113,12 +113,14 @@ function createAuthStore() {
 		// 로그아웃
 		async logout() {
 			try {
-				// 로그아웃 API 호출 (Cookie 삭제)
-				await apiPost('/api/auth/logout', {});
+				// TODO: 백엔드 /api/auth/logout API 구현 후 활성화
+				// await apiPost('/api/auth/logout', { deviceId: getOrCreateDeviceId() });
+
+				// 현재는 로컬 상태만 초기화 (HttpOnly Cookie는 클라이언트에서 삭제 불가)
+				// 토큰은 만료되거나 다음 로그인 시 덮어씌워짐
+				this.setUser(null);
 			} catch (error) {
 				console.error('로그아웃 오류:', error);
-			} finally {
-				// 로컬 상태 초기화
 				this.setUser(null);
 			}
 		},

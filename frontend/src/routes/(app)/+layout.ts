@@ -1,35 +1,25 @@
 import { redirect } from '@sveltejs/kit';
 import type { LayoutLoad } from './$types';
 
-export const load: LayoutLoad = async ({ fetch, url }) => {
-	try {
-		// 세션 확인: /api/auth/me 엔드포인트 호출
-		const response = await fetch('/api/auth/me', {
-			credentials: 'include'
-		});
+export const load: LayoutLoad = async ({ cookies, url }) => {
+	// TODO: 백엔드 /api/auth/me API 구현 후 실제 API 호출로 변경
+	// 현재는 Cookie에 accessToken이 있는지만 확인하는 임시 방안 사용
 
-		if (!response.ok) {
-			// 인증 실패 시 로그인 페이지로 리디렉션
-			// 현재 URL을 쿼리 파라미터로 저장하여 로그인 후 복귀 가능
-			throw redirect(303, `/login?redirectTo=${encodeURIComponent(url.pathname)}`);
-		}
+	// Cookie에서 accessToken 확인
+	const accessToken = cookies.get('accessToken');
 
-		const user = await response.json();
-
-		return {
-			user: {
-				name: user.name || user.username || user.email?.split('@')[0] || '사용자',
-				email: user.email,
-				avatar: user.avatar
-			}
-		};
-	} catch (error) {
-		// redirect는 throw되므로 그대로 전파
-		if (error instanceof Response) {
-			throw error;
-		}
-
-		// 기타 에러 시 로그인 페이지로 리디렉션
+	if (!accessToken) {
+		// 토큰이 없으면 로그인 페이지로 리다이렉트
 		throw redirect(303, `/login?redirectTo=${encodeURIComponent(url.pathname)}`);
 	}
+
+	// TODO: /api/auth/me 구현 후 실제 사용자 정보 조회
+	// 현재는 임시 데이터 반환
+	// 실제 사용자 정보는 API 요청 시 자동으로 토큰 검증됨
+	return {
+		user: {
+			name: '사용자',
+			email: 'user@example.com'
+		}
+	};
 };
