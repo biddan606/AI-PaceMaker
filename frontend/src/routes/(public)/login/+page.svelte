@@ -2,21 +2,42 @@
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import AuthCard from '$lib/components/auth/AuthCard.svelte';
+	import FormInput from '$lib/components/auth/FormInput.svelte';
+	import LoadingButton from '$lib/components/auth/LoadingButton.svelte';
+	import ErrorAlert from '$lib/components/auth/ErrorAlert.svelte';
 
 	let email = $state('');
 	let password = $state('');
 	let errorMessage = $state('');
+	let successMessage = $state('');
 	let isLoading = $state(false);
+
+	// URL 쿼리 파라미터에서 성공 메시지 읽기 (회원가입 성공 시)
+	onMount(() => {
+		const message = $page.url.searchParams.get('message');
+		if (message) {
+			successMessage = decodeURIComponent(message);
+		}
+	});
 
 	async function handleLogin(event: Event) {
 		event.preventDefault();
 		errorMessage = '';
+		successMessage = '';
 		isLoading = true;
 
 		try {
 			const result = await authStore.login(email, password);
 
 			if (result.success) {
+				// 이메일 미인증 사용자 처리
+				if (result.emailVerified === false) {
+					await goto('/verify-email?email=' + encodeURIComponent(email));
+					return;
+				}
+
 				// 로그인 성공 시 redirectTo 파라미터 확인하여 원래 페이지로 복귀
 				const redirectTo = $page.url.searchParams.get('redirectTo') || '/app/backlog';
 				await goto(redirectTo);
@@ -32,64 +53,46 @@
 	}
 </script>
 
-<div class="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4">
-	<div class="w-full max-w-md">
-		<div class="card">
-			<h1 class="text-2xl font-bold text-[#171717] mb-2">로그인</h1>
-			<p class="text-sm text-[#737373] mb-6">AI 페이스메이커에 오신 것을 환영합니다</p>
+<AuthCard title="로그인" description="AI 페이스메이커에 오신 것을 환영합니다">
+	{#snippet children()}
+		<ErrorAlert message={successMessage} type="success" />
+		<ErrorAlert message={errorMessage} type="error" />
 
-			{#if errorMessage}
-				<div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-					{errorMessage}
-				</div>
-			{/if}
+		<form onsubmit={handleLogin} class="space-y-4">
+			<FormInput
+				id="email"
+				label="이메일"
+				type="email"
+				placeholder="example@email.com"
+				bind:value={email}
+				required
+				disabled={isLoading}
+				autocomplete="email"
+			/>
 
-			<form onsubmit={handleLogin} class="space-y-4">
-				<div>
-					<label for="email" class="block text-sm font-medium text-[#404040] mb-1">
-						이메일
-					</label>
-					<input
-						type="email"
-						id="email"
-						class="input"
-						placeholder="example@email.com"
-						bind:value={email}
-						disabled={isLoading}
-						required
-					/>
-				</div>
+			<FormInput
+				id="password"
+				label="비밀번호"
+				type="password"
+				placeholder="••••••••"
+				bind:value={password}
+				required
+				disabled={isLoading}
+				autocomplete="current-password"
+			/>
 
-				<div>
-					<label for="password" class="block text-sm font-medium text-[#404040] mb-1">
-						비밀번호
-					</label>
-					<input
-						type="password"
-						id="password"
-						class="input"
-						placeholder="••••••••"
-						bind:value={password}
-						disabled={isLoading}
-						required
-					/>
-				</div>
+			<LoadingButton loading={isLoading} loadingText="로그인 중...">
+				{#snippet children()}
+					로그인
+				{/snippet}
+			</LoadingButton>
+		</form>
 
-				<button
-					type="submit"
-					class="w-full px-4 py-3 bg-[#FF6B4A] text-white rounded-lg hover:bg-[#FF5A39] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-					disabled={isLoading}
-				>
-					{isLoading ? '로그인 중...' : '로그인'}
-				</button>
-			</form>
-
-			<div class="mt-6 text-center">
-				<p class="text-sm text-[#737373]">
-					계정이 없으신가요?
-					<a href="/signup" class="text-[#FF6B4A] font-medium hover:underline">회원가입</a>
-				</p>
-			</div>
+		<div class="mt-6 text-center">
+			<p class="text-sm text-[#737373]">
+				계정이 없으신가요?
+				<a href="/signup" class="text-[#FF6B4A] font-medium hover:underline">회원가입</a>
+			</p>
 		</div>
-	</div>
-</div>
+	{/snippet}
+</AuthCard>
