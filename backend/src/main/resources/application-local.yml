@@ -5,8 +5,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/aipacemaker_local
-    username: postgre
-    password: postgre
+    username: postgres
+    password: postgres
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
