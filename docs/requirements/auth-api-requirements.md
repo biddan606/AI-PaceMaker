@@ -17,7 +17,7 @@
 
 ### 기본 정보
 
-**Endpoint:** `GET /api/auth/me`
+**Endpoint:** `GET /api/me`
 
 **인증:** Required (Access Token via HttpOnly Cookie)
 
@@ -26,6 +26,7 @@
 ### Request
 
 **Headers:**
+
 ```
 Cookie: accessToken=<jwt-token>
 ```
@@ -44,6 +45,7 @@ Cookie: accessToken=<jwt-token>
 ```
 
 **Response Fields:**
+
 - `userId` (Long): 사용자 ID
 - `email` (String): 사용자 이메일
 - `name` (String): 사용자 이름
@@ -52,6 +54,7 @@ Cookie: accessToken=<jwt-token>
 ### Error Responses
 
 **401 Unauthorized:**
+
 ```json
 {
   "type": "about:blank",
@@ -65,11 +68,13 @@ Cookie: accessToken=<jwt-token>
 ### 구현 요구사항
 
 1. **토큰 검증:**
+
    - HttpOnly Cookie에서 `accessToken` 추출
    - JWT 토큰 유효성 검증 (서명, 만료 시간)
    - 토큰에서 userId 추출
 
 2. **사용자 정보 조회:**
+
    - userId로 DB에서 사용자 정보 조회
    - 사용자가 존재하지 않으면 401 반환
 
@@ -80,6 +85,7 @@ Cookie: accessToken=<jwt-token>
 ### 사용 시나리오
 
 1. **페이지 로드 시:**
+
    - 사용자가 보호된 페이지(`/app/*`) 접근 시
    - SvelteKit Layout에서 자동 호출
    - 인증 실패 시 로그인 페이지로 리다이렉트
@@ -103,12 +109,14 @@ Cookie: accessToken=<jwt-token>
 ### Request
 
 **Headers:**
+
 ```
 Cookie: accessToken=<jwt-token>; refreshToken=<jwt-token>
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "deviceId": "device-uuid-or-identifier"
@@ -116,17 +124,13 @@ Content-Type: application/json
 ```
 
 **Body Fields:**
+
 - `deviceId` (String, Required): 로그아웃할 디바이스 식별자
 
 ### Success Response (200 OK)
 
-```json
-{
-  "message": "로그아웃되었습니다."
-}
-```
-
 **추가 동작:**
+
 - `Set-Cookie` 헤더를 통해 `accessToken`과 `refreshToken` 삭제 (MaxAge=0)
 
 ```
@@ -137,6 +141,7 @@ Set-Cookie: refreshToken=; Path=/; HttpOnly; Max-Age=0
 ### Error Responses
 
 **401 Unauthorized:**
+
 ```json
 {
   "type": "about:blank",
@@ -148,6 +153,7 @@ Set-Cookie: refreshToken=; Path=/; HttpOnly; Max-Age=0
 ```
 
 **400 Bad Request:**
+
 ```json
 {
   "type": "about:blank",
@@ -161,16 +167,19 @@ Set-Cookie: refreshToken=; Path=/; HttpOnly; Max-Age=0
 ### 구현 요구사항
 
 1. **토큰 검증:**
+
    - HttpOnly Cookie에서 `accessToken` 추출
    - JWT 토큰 유효성 검증
    - 토큰에서 userId 추출
 
 2. **Refresh Token 삭제:**
+
    - Request Body에서 `deviceId` 추출
    - DB에서 `userId`와 `deviceId`에 해당하는 Refresh Token 삭제
    - 해당 디바이스의 세션 완전히 무효화
 
 3. **Cookie 삭제:**
+
    - `accessToken` Cookie 삭제 (MaxAge=0)
    - `refreshToken` Cookie 삭제 (MaxAge=0)
    - Path, Domain, HttpOnly 속성 동일하게 설정
@@ -182,6 +191,7 @@ Set-Cookie: refreshToken=; Path=/; HttpOnly; Max-Age=0
 ### 사용 시나리오
 
 1. **명시적 로그아웃:**
+
    - 사용자가 헤더 메뉴에서 "로그아웃" 클릭
    - 프론트엔드에서 localStorage의 deviceId 전송
    - 로그아웃 성공 후 로그인 페이지로 리다이렉트
@@ -194,15 +204,17 @@ Set-Cookie: refreshToken=; Path=/; HttpOnly; Max-Age=0
 
 ## 구현 우선순위
 
-### 1. 높음: `GET /api/auth/me`
+### 1. 높음: `GET /api/me`
+
 - **이유:** 프론트엔드 인증 가드에 필수
 - **영향:** 이 API 없이는 보호된 페이지 접근 불가
 - **구현 시점:** JWT 인증 필터 구현 직후
 
 ### 2. 중간: `POST /api/auth/logout`
+
 - **이유:** 사용자 경험 개선에 필요
 - **대안:** 현재는 프론트엔드에서 로컬 상태만 초기화 (토큰은 만료 대기)
-- **구현 시점:** `/api/auth/me` 완료 후
+- **구현 시점:** `/api/me` 완료 후
 
 ---
 
@@ -210,12 +222,13 @@ Set-Cookie: refreshToken=; Path=/; HttpOnly; Max-Age=0
 
 ### 1. 성능 최적화
 
-**`GET /api/auth/me` 호출 빈도:**
+**`GET /api/me` 호출 빈도:**
+
 - 매 페이지 로드마다 호출될 수 있음
-- DB 조회 최소화 고려 (캐싱, Redis 세션 등)
 - JWT 토큰에 필요한 정보 포함하여 DB 조회 생략 가능
 
 **권장 구현:**
+
 ```java
 // 토큰에서 추출한 정보로 응답 구성 (DB 조회 없이)
 Claims claims = jwtTokenProvider.parseClaims(accessToken);
@@ -230,16 +243,19 @@ return UserInfoResponse.builder()
 ### 2. 다중 디바이스 로그아웃
 
 **현재 구현:** 디바이스별 Refresh Token 관리
+
 - 로그아웃 시 해당 deviceId의 토큰만 삭제
 - 다른 디바이스 세션은 유지
 
 **추가 고려사항:**
+
 - "모든 디바이스에서 로그아웃" 기능 필요 여부
 - 특정 디바이스 세션 관리 UI 필요 여부
 
 ### 3. JWT Claims 구조 확장
 
 **현재 Access Token Claims:**
+
 ```
 {
   "sub": userId,
@@ -251,6 +267,7 @@ return UserInfoResponse.builder()
 ```
 
 **필요한 추가 Claims:**
+
 ```
 {
   "sub": userId,
@@ -268,11 +285,13 @@ return UserInfoResponse.builder()
 ## 의존성
 
 ### 선행 작업
+
 - ✅ JWT 토큰 발급 로직 (완료)
 - ⏳ JWT 인증 필터/인터셉터 구현
 - ⏳ Spring Security 설정
 
 ### 관련 문서
+
 - [백엔드 인증 API 문서](../../backend/src/main/java/app/aipacemaker/backend/auth/docs/api.md)
 - [프론트엔드 인증 시스템 명세](../../specifications/v1.0.0/DS/01-authentication-system.md)
 
@@ -283,6 +302,7 @@ return UserInfoResponse.builder()
 ### `GET /api/auth/me` 테스트
 
 1. **정상 케이스:**
+
    - 유효한 accessToken으로 요청
    - 200 OK 및 사용자 정보 반환
 
@@ -295,15 +315,18 @@ return UserInfoResponse.builder()
 ### `POST /api/auth/logout` 테스트
 
 1. **정상 케이스:**
+
    - 유효한 accessToken + deviceId로 요청
    - 200 OK 및 Cookie 삭제 확인
    - DB에서 Refresh Token 삭제 확인
 
 2. **인증 실패:**
+
    - accessToken 없이 요청 → 401
    - 만료된 accessToken → 401
 
 3. **잘못된 요청:**
+
    - deviceId 누락 → 400
 
 4. **재로그인 불가:**

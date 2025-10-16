@@ -11,6 +11,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,33 +36,27 @@ public class AuthController {
     }
 
     @PostMapping("/api/users")
-    @ResponseStatus(HttpStatus.CREATED)
-    public RegisterResponse createUser(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<RegisterResponse> createUser(@Valid @RequestBody RegisterRequest request) {
         RegisterUser.Command command = new RegisterUser.Command(request.name, request.email, request.password);
         RegisterUser.Result result = registerUser.execute(command);
 
-        return new RegisterResponse(
-                result.userId(),
-                result.email(),
-                "회원가입이 완료되었습니다. 이메일을 확인하여 계정을 활성화해주세요."
-        );
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new RegisterResponse(result.userId(), result.email()));
     }
 
     @PostMapping("/api/users/verification")
-    @ResponseStatus(HttpStatus.OK)
-    public VerifyEmailResponse verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+    public ResponseEntity<VerifyEmailResponse> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
         VerifyEmail.Command command = new VerifyEmail.Command(request.token);
         VerifyEmail.Result result = verifyEmail.execute(command);
 
-        return new VerifyEmailResponse(
+        return ResponseEntity.ok(new VerifyEmailResponse(
                 result.userId(),
                 result.email(),
-                result.verified(),
-                "이메일 인증이 완료되었습니다."
-        );
+                result.verified()
+        ));
     }
 
-    record RegisterRequest(
+    public record RegisterRequest(
             @NotBlank(message = "이름은 필수입니다")
             String name,
 
@@ -73,27 +68,24 @@ public class AuthController {
             String password
     ) {}
 
-    record RegisterResponse(
+    public record RegisterResponse(
             Long userId,
-            String email,
-            String message
+            String email
     ) {}
 
-    record VerifyEmailRequest(
+    public record VerifyEmailRequest(
             @NotBlank(message = "토큰은 필수입니다")
             String token
     ) {}
 
-    record VerifyEmailResponse(
+    public record VerifyEmailResponse(
             Long userId,
             String email,
-            boolean verified,
-            String message
+            boolean verified
     ) {}
 
     @PostMapping("/api/auth/login")
-    @ResponseStatus(HttpStatus.OK)
-    public LoginResponse login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
         LoginUser.Command command = new LoginUser.Command(request.email, request.password, request.deviceId);
         LoginUser.Result result = loginUser.execute(command);
 
@@ -106,16 +98,15 @@ public class AuthController {
         response.addCookie(refreshTokenCookie);
 
         // 응답 JSON에는 토큰을 제외하고 사용자 정보만 반환
-        return new LoginResponse(
+        return ResponseEntity.ok(new LoginResponse(
                 result.userId(),
                 result.email(),
                 result.emailVerified()
-        );
+        ));
     }
 
     @PostMapping("/api/auth/refresh")
-    @ResponseStatus(HttpStatus.OK)
-    public RefreshTokenResponse refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshTokenFromCookie,
+    public ResponseEntity<RefreshTokenResponse> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshTokenFromCookie,
                                               @RequestBody(required = false) RefreshTokenRequest request,
                                               HttpServletResponse response) {
         // Cookie 또는 RequestBody에서 refreshToken 가져오기
@@ -133,10 +124,10 @@ public class AuthController {
         Cookie accessTokenCookie = createHttpOnlyCookie("accessToken", result.accessToken(), 3600);
         response.addCookie(accessTokenCookie);
 
-        return new RefreshTokenResponse(result.accessToken());
+        return ResponseEntity.ok(new RefreshTokenResponse(result.accessToken()));
     }
 
-    record LoginRequest(
+    public record LoginRequest(
             @NotBlank(message = "이메일은 필수입니다")
             @Email(message = "올바른 이메일 형식이 아닙니다")
             String email,
@@ -148,18 +139,18 @@ public class AuthController {
             String deviceId
     ) {}
 
-    record LoginResponse(
+    public record LoginResponse(
             Long userId,
             String email,
             boolean emailVerified
     ) {}
 
-    record RefreshTokenRequest(
+    public record RefreshTokenRequest(
             @NotBlank(message = "Refresh Token은 필수입니다")
             String refreshToken
     ) {}
 
-    record RefreshTokenResponse(
+    public record RefreshTokenResponse(
             String accessToken
     ) {}
 }
