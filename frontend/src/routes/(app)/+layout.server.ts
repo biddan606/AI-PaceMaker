@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
-import type { LayoutLoad } from './$types';
+import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutLoad = async ({ cookies, url }) => {
+export const load: LayoutServerLoad = async ({ cookies, url }) => {
 	// TODO: 백엔드 /api/auth/me API 구현 후 실제 API 호출로 변경
 	// 현재는 Cookie에 accessToken이 있는지만 확인하는 임시 방안 사용
 
