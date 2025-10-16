@@ -50,6 +50,9 @@
 		} else if (password.length < 8) {
 			fieldErrors.password = '비밀번호는 8자 이상이어야 합니다';
 			isValid = false;
+		} else if (!/^(?=.*[A-Za-z])(?=.*\d).+$/.test(password)) {
+			fieldErrors.password = '비밀번호는 영문자와 숫자를 포함해야 합니다';
+			isValid = false;
 		}
 
 		if (!passwordConfirm) {
@@ -123,7 +126,7 @@
 				id="password"
 				label="비밀번호"
 				type="password"
-				placeholder="8자 이상 입력"
+				placeholder="8자 이상, 영문+숫자 포함"
 				bind:value={password}
 				error={fieldErrors.password}
 				required
