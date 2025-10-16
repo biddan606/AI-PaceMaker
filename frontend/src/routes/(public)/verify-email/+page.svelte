@@ -5,7 +5,7 @@
 	import AuthCard from '$lib/components/auth/AuthCard.svelte';
 	import ErrorAlert from '$lib/components/auth/ErrorAlert.svelte';
 	import LoadingButton from '$lib/components/auth/LoadingButton.svelte';
-	import { apiPost } from '$lib/api/client';
+	import { apiPut } from '$lib/api/client';
 
 	let email = $state('');
 	let token = $state('');
@@ -35,12 +35,12 @@
 		errorMessage = '';
 
 		try {
-			const response = await apiPost<{
+			const response = await apiPut<{
 				userId: number;
 				email: string;
 				verified: boolean;
 				message: string;
-			}>('/api/users/verification', { token });
+			}>(`/api/users/verification/${token}`);
 
 			isVerified = true;
 			successMessage = response.message || '이메일 인증이 완료되었습니다.';

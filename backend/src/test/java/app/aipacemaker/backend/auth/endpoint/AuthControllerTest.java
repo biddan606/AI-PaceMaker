@@ -3,6 +3,7 @@ package app.aipacemaker.backend.auth.endpoint;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -99,17 +100,15 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/users/verification - 유효한 토큰이면 200 OK와 userId, email, verified를 반환한다")
+    @DisplayName("PUT /api/users/verification/{token} - 유효한 토큰이면 200 OK와 userId, email, verified를 반환한다")
     void verifyEmailSuccess() throws Exception {
         // given
-        AuthController.VerifyEmailRequest request = new AuthController.VerifyEmailRequest("valid-token");
+        String token = "valid-token";
         VerifyEmail.Result result = new VerifyEmail.Result(1L, "test@example.com", true);
         when(verifyEmail.execute(any(VerifyEmail.Command.class))).thenReturn(result);
 
         // when & then
-        mockMvc.perform(post("/api/users/verification")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(put("/api/users/verification/{token}", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value(1))
                 .andExpect(jsonPath("$.email").value("test@example.com"))
@@ -153,17 +152,15 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/users/verification - 만료된 토큰이면 400 Bad Request와 ProblemDetail을 반환한다")
+    @DisplayName("PUT /api/users/verification/{token} - 만료된 토큰이면 400 Bad Request와 ProblemDetail을 반환한다")
     void expiredTokenReturns400() throws Exception {
         // given
-        AuthController.VerifyEmailRequest request = new AuthController.VerifyEmailRequest("expired-token");
+        String token = "expired-token";
         when(verifyEmail.execute(any(VerifyEmail.Command.class)))
-                .thenThrow(new ExpiredVerificationTokenException("expired-token"));
+                .thenThrow(new ExpiredVerificationTokenException(token));
 
         // when & then
-        mockMvc.perform(post("/api/users/verification")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(put("/api/users/verification/{token}", token))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.type").exists())
                 .andExpect(jsonPath("$.title").exists())
@@ -171,17 +168,15 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/users/verification - 존재하지 않는 토큰이면 404 Not Found와 ProblemDetail을 반환한다")
+    @DisplayName("PUT /api/users/verification/{token} - 존재하지 않는 토큰이면 404 Not Found와 ProblemDetail을 반환한다")
     void invalidTokenReturns404() throws Exception {
         // given
-        AuthController.VerifyEmailRequest request = new AuthController.VerifyEmailRequest("nonexistent-token");
+        String token = "nonexistent-token";
         when(verifyEmail.execute(any(VerifyEmail.Command.class)))
-                .thenThrow(new InvalidVerificationTokenException("nonexistent-token"));
+                .thenThrow(new InvalidVerificationTokenException(token));
 
         // when & then
-        mockMvc.perform(post("/api/users/verification")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(put("/api/users/verification/{token}", token))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.type").exists())
                 .andExpect(jsonPath("$.title").exists())

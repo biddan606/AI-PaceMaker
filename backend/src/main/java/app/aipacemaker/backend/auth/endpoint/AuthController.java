@@ -44,9 +44,9 @@ public class AuthController {
                 .body(new RegisterResponse(result.userId(), result.email()));
     }
 
-    @PostMapping("/api/users/verification")
-    public ResponseEntity<VerifyEmailResponse> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
-        VerifyEmail.Command command = new VerifyEmail.Command(request.token);
+    @PutMapping("/api/users/verification/{token}")
+    public ResponseEntity<VerifyEmailResponse> verifyEmail(@PathVariable String token) {
+        VerifyEmail.Command command = new VerifyEmail.Command(token);
         VerifyEmail.Result result = verifyEmail.execute(command);
 
         return ResponseEntity.ok(new VerifyEmailResponse(
@@ -71,11 +71,6 @@ public class AuthController {
     public record RegisterResponse(
             Long userId,
             String email
-    ) {}
-
-    public record VerifyEmailRequest(
-            @NotBlank(message = "토큰은 필수입니다")
-            String token
     ) {}
 
     public record VerifyEmailResponse(

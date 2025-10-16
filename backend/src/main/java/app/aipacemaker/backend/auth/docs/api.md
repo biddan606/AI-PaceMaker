@@ -45,14 +45,10 @@
 
 이메일로 전송된 인증 토큰을 통해 계정을 활성화합니다.
 
-**Endpoint:** `POST /api/users/verification`
+**Endpoint:** `PUT /api/users/verification/{token}`
 
-**Request Body:**
-```json
-{
-  "token": "uuid-token-string"
-}
-```
+**Path Parameters:**
+- `token`: 이메일로 전송된 인증 토큰 (UUID 문자열)
 
 **Success Response (200 OK):**
 ```json
@@ -252,7 +248,7 @@ Refresh Token을 사용하여 새로운 Access Token을 발급받습니다.
 
 **공개 엔드포인트 (인증 불필요):**
 - `POST /api/users` - 회원가입
-- `POST /api/users/verification` - 이메일 인증
+- `PUT /api/users/verification/{token}` - 이메일 인증
 - `POST /api/auth/login` - 로그인
 - `POST /api/auth/refresh` - 토큰 갱신
 
