@@ -4,6 +4,8 @@ import app.aipacemaker.backend.auth.usecase.LoginUser;
 import app.aipacemaker.backend.auth.usecase.RegisterUser;
 import app.aipacemaker.backend.auth.usecase.RenewAccessToken;
 import app.aipacemaker.backend.auth.usecase.VerifyEmail;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -19,6 +21,18 @@ public class AuthController {
     private final VerifyEmail verifyEmail;
     private final LoginUser loginUser;
     private final RenewAccessToken renewAccessToken;
+
+    /**
+     * HttpOnly Cookie 생성 헬퍼 메서드
+     */
+    private Cookie createHttpOnlyCookie(String name, String value, int maxAgeInSeconds) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // HTTPS 환경에서는 true로 설정
+        cookie.setPath("/");
+        cookie.setMaxAge(maxAgeInSeconds);
+        return cookie;
+    }
 
     @PostMapping("/api/users")
     @ResponseStatus(HttpStatus.CREATED)
@@ -79,24 +93,45 @@ public class AuthController {
 
     @PostMapping("/api/auth/login")
     @ResponseStatus(HttpStatus.OK)
-    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
+    public LoginResponse login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
         LoginUser.Command command = new LoginUser.Command(request.email, request.password, request.deviceId);
         LoginUser.Result result = loginUser.execute(command);
 
+        // Access Token을 HttpOnly Cookie로 설정 (1시간 = 3600초)
+        Cookie accessTokenCookie = createHttpOnlyCookie("accessToken", result.accessToken(), 3600);
+        response.addCookie(accessTokenCookie);
+
+        // Refresh Token을 HttpOnly Cookie로 설정 (30일 = 2592000초)
+        Cookie refreshTokenCookie = createHttpOnlyCookie("refreshToken", result.refreshToken(), 2592000);
+        response.addCookie(refreshTokenCookie);
+
+        // 응답 JSON에는 토큰을 제외하고 사용자 정보만 반환
         return new LoginResponse(
                 result.userId(),
                 result.email(),
-                result.emailVerified(),
-                result.accessToken(),
-                result.refreshToken()
+                result.emailVerified()
         );
     }
 
     @PostMapping("/api/auth/refresh")
     @ResponseStatus(HttpStatus.OK)
-    public RefreshTokenResponse refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
-        RenewAccessToken.Command command = new RenewAccessToken.Command(request.refreshToken);
+    public RefreshTokenResponse refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshTokenFromCookie,
+                                              @RequestBody(required = false) RefreshTokenRequest request,
+                                              HttpServletResponse response) {
+        // Cookie 또는 RequestBody에서 refreshToken 가져오기
+        String refreshToken = refreshTokenFromCookie != null ? refreshTokenFromCookie :
+                             (request != null ? request.refreshToken : null);
+
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new IllegalArgumentException("Refresh Token은 필수입니다");
+        }
+
+        RenewAccessToken.Command command = new RenewAccessToken.Command(refreshToken);
         RenewAccessToken.Result result = renewAccessToken.execute(command);
+
+        // 새로운 Access Token을 HttpOnly Cookie로 설정
+        Cookie accessTokenCookie = createHttpOnlyCookie("accessToken", result.accessToken(), 3600);
+        response.addCookie(accessTokenCookie);
 
         return new RefreshTokenResponse(result.accessToken());
     }
@@ -116,9 +151,7 @@ public class AuthController {
     record LoginResponse(
             Long userId,
             String email,
-            boolean emailVerified,
-            String accessToken,
-            String refreshToken
+            boolean emailVerified
     ) {}
 
     record RefreshTokenRequest(
