@@ -2,18 +2,13 @@
 	import Header from '$lib/components/layout/Header.svelte';
 	import Sidebar from '$lib/components/layout/Sidebar.svelte';
 	import MobileNav from '$lib/components/layout/MobileNav.svelte';
+	import { authStore } from '$lib/stores/auth.svelte';
 	import '../../app.css';
 
 	let { children } = $props();
 
 	// 사이드바 열림/닫힘 상태 (모바일/태블릿용)
 	let isSidebarOpen = $state(false);
-
-	// TODO: 실제 사용자 데이터는 인증 스토어에서 가져오기
-	const user = {
-		name: '김성장',
-		email: 'user@example.com'
-	};
 
 	function toggleSidebar() {
 		isSidebarOpen = !isSidebarOpen;
@@ -24,15 +19,13 @@
 	}
 
 	function handleLogout() {
-		// TODO: 실제 로그아웃 로직 구현 (인증 스토어와 연동)
-		console.log('로그아웃');
-		window.location.href = '/login';
+		authStore.logout();
 	}
 </script>
 
 <div class="min-h-screen bg-background">
 	<!-- 헤더 -->
-	<Header {user} onToggleSidebar={toggleSidebar} onLogout={handleLogout} />
+	<Header user={authStore.user} onToggleSidebar={toggleSidebar} onLogout={handleLogout} />
 
 	<!-- 사이드바 -->
 	<Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
